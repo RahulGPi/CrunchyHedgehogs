@@ -25,8 +25,8 @@ LANDSAT_SETTINGS = {
 
 # Copernicus settings
 COPERNICUS_SETTINGS = {
-    'image_id': 'COPERNICUS/Landcover/100m/Proba-V-C3/Global/2019',
-    'band': 'discrete_classification',
+    'image_id': 'ESA/WorldCover/v200',
+    'band': 'Map',
     'visualization': {
         'min': 0,
         'max': 100,
@@ -48,7 +48,7 @@ DRIVE_SETTINGS = {
     'poll_interval': 10,
     'image_conversion': {
         'delete_original': True,  # Whether to delete TIFF after conversion
-        'quality': 95,           # PNG quality (1-100)
+        'quality': 100,           # PNG quality (1-100)
         'resize': None           # Optional: (width, height) or None
     }
 }

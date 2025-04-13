@@ -63,8 +63,8 @@ def process_coordinates(coord_list):
 if __name__ == "__main__":
     # Example coordinates
     coordinates = [
-        # (-33.8688, 151.2093),  # Example coordinate 1
-        (19.200000, 80.100000)   # Example coordinate 2
+        (13.2151 , 74.9962),  # Example coordinate 1
+        # (19.200000, 80.100000)   # Example coordinate 2
     ]
     
     # Run the export process

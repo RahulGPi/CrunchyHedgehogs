@@ -10,9 +10,7 @@ def process_copernicus_image(roi, index):
         index: Index number for file naming
     """
     # Load Copernicus data
-    dataset = ee.Image(COPERNICUS_SETTINGS['image_id']).select(
-        COPERNICUS_SETTINGS['band']
-    )
+    dataset = ee.imagecollection.ImageCollection(COPERNICUS_SETTINGS['image_id']).first()
     
     # Visualize and export
     img_visualized = dataset.visualize(
