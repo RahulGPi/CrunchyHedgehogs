@@ -51,3 +51,27 @@ class ImageConverter:
                 if png_path:
                     converted_files.append(png_path)
         return converted_files
+    
+    from PIL import Image
+
+    def resize_image(image_path, output_path, new_width, new_height):
+        """
+        Resizes an image to the specified dimensions.
+
+        Args:
+            image_path (str): Path to the input image.
+            output_path (str): Path to save the resized image.
+            new_width (int): Desired width of the resized image.
+            new_height (int): Desired height of the resized image.
+        """
+        try:
+            img = Image.open(image_path)
+            resized_img = img.resize((new_width, new_height))
+            resized_img.save(output_path)
+            print(f"Image resized and saved to {output_path}")
+        except FileNotFoundError:
+            print(f"Error: Image file not found at {image_path}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+# Example usage:

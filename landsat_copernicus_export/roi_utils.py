@@ -4,7 +4,7 @@ from config import EE_PROJECT
 # Initialize Earth Engine
 ee.Initialize(project=EE_PROJECT)
 
-def create_roi(lat, lon, buffer_size=5000):
+def create_roi(lat, lon, buffer_size=3000):
     """
     Create a circular region of interest around given coordinates
     Args:

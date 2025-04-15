@@ -15,7 +15,7 @@ def process_copernicus_image(roi, index):
     # Visualize and export
     img_visualized = dataset.visualize(
         bands=[COPERNICUS_SETTINGS['band']],
-        **COPERNICUS_SETTINGS['visualization']
+        # **COPERNICUS_SETTINGS['visualization']
     )
     
     export_task = ee.batch.Export.image.toDrive(

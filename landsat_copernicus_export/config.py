@@ -16,25 +16,25 @@ LANDSAT_SETTINGS = {
     'max_cloud_cover': 5,
     'visualization': {
         'min': 0.0,
-        'max': 0.3,
-        'gamma': 1.2
+        'max': 0.35,
+    
     },
-    'rgb_bands': ['SR_B2', 'SR_B3', 'SR_B4'],
+    'rgb_bands': ['SR_B4', 'SR_B3', 'SR_B2'],
     'export_folder': 'LandsatExports'
 }
 
 # Copernicus settings
 COPERNICUS_SETTINGS = {
-    'image_id': 'ESA/WorldCover/v200',
+    'image_id': 'ESA/WorldCover/v100',
     'band': 'Map',
     'visualization': {
         'min': 0,
         'max': 100,
-        'palette': [
-            '006400', 'ffbb22', 'ffff4c', 'f096ff', 'fa0000', 
-            'b4b4b4', 'f0f0f0', '0064c8', '0096a0', '00cf75', 
-            'fae6a0', 'b40000', '702200', 'b4d79e'
-        ]
+        # 'palette': [
+        #     '006400', 'ffbb22', 'ffff4c', 'f096ff', 'fa0000', 
+        #     'b4b4b4', 'f0f0f0', '0064c8', '0096a0', '00cf75', 
+        #     'fae6a0', 'b40000', '702200', 'b4d79e'
+        # ]
     },
     'export_folder': 'CopernicusExports'
 }
