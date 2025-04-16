@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 import rasterio
-from config import DRIVE_SETTINGS
+# from config import DRIVE_SETTINGS
 
 class ImageConverter:
     @staticmethod
@@ -15,7 +15,7 @@ class ImageConverter:
             with rasterio.open(tif_path) as src:
                 # Read all bands
                 data = src.read()
-                profile = src.profile
+                # profile = src.profile
             
             # Convert to PNG (using first 3 bands for RGB)
             if len(data) >= 3:
@@ -52,7 +52,7 @@ class ImageConverter:
                     converted_files.append(png_path)
         return converted_files
     
-    from PIL import Image
+
 
     def resize_image(image_path, output_path, new_width, new_height):
         """
@@ -73,5 +73,13 @@ class ImageConverter:
             print(f"Error: Image file not found at {image_path}")
         except Exception as e:
             print(f"An error occurred: {e}")
+            
+    def resizer():
+        image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
+        output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
+        ImageConverter.resize_image(image_path, output_path, 467, 334)
+        #landsat resize
+        image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
+        output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
+        ImageConverter.resize_image(image_path, output_path, 467, 334)
 
-# Example usage:

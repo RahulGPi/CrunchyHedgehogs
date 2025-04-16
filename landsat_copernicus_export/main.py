@@ -67,17 +67,11 @@ if __name__ == "__main__":
         # (19.200000, 80.100000)   # Example coordinate 2
         # (12.866704307785797, 74.92592107735125)
         # (44.612379390791055, 7.525144278903881)
-        # (12.8659168, 74.92452) sahyadri
-        (13.183904195454893, 74.93374807956195)
+        (12.8659168, 74.92452) #sahyadri
+        # (13.183904195454893, 74.93374807956195) #nitte
     ]
     
     # Run the export process
     process_coordinates(coordinates)
     # copernicus resize
-    image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
-    output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
-    ImageConverter.resize_image(image_path, output_path, 467, 334)
-    #landsat resize
-    image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
-    output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
-    ImageConverter.resize_image(image_path, output_path, 467, 334)
+    ImageConverter.resizer()

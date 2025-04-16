@@ -5,7 +5,7 @@ EE_PROJECT = "ee-rahulpaiai23"
 
 # Default export settings
 EXPORT_SETTINGS = {
-    'scale': 30,
+    'scale': 10,
     'maxPixels': 1e13
 }
 
@@ -25,7 +25,7 @@ LANDSAT_SETTINGS = {
 
 # Copernicus settings
 COPERNICUS_SETTINGS = {
-    'image_id': 'ESA/WorldCover/v100',
+    'image_id': 'ESA/WorldCover/v200',
     'band': 'Map',
     'visualization': {
         'min': 0,
