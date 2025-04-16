@@ -77,9 +77,9 @@ class ImageConverter:
     def resizer():
         image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
         output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
-        ImageConverter.resize_image(image_path, output_path, 467, 334)
+        ImageConverter.resize_image(image_path, output_path, 600,600)
         #landsat resize
         image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
         output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
-        ImageConverter.resize_image(image_path, output_path, 467, 334)
+        ImageConverter.resize_image(image_path, output_path, 600,600)
 

@@ -52,3 +52,28 @@ DRIVE_SETTINGS = {
         'resize': None           # Optional: (width, height) or None
     }
 }
+GEMINI_MODEL = "gemini-2.5-pro-exp-03-25"
+
+API_KEY = "AIzaSyDHue-USShZ-R-45asfNitt3D6569RayWQ"
+
+PROMPT = '''
+The following image is processed satellite image 
+and the below colors are the classifiers for the image
+#006400	Tree cover
+#ffbb22	Shrubland
+#ffff4c	Grassland
+#f096ff	Cropland
+#fa0000	Built-up
+#b4b4b4	Bare / sparse vegetation
+#f0f0f0	Snow and ice
+#0064c8	Permanent water bodies
+#0096a0	Herbaceous wetland
+#00cf75	Mangroves
+#fae6a0	Moss and lichen
+What would be the best possible coordinates in the image to build a large scale hospital complex
+such that it takes into account for the nearby infrastructure and also having sustainablity while also
+not trying to destroy nature/landscape/greenery of the place
+RETURN ONLY IMAGE COORDINATES IN A TUPLE EXAMPLE "(X,Y)"
+do not return any other character other than (x,y)
+give me image coordinates without in respect to the satellite img radius
+'''
