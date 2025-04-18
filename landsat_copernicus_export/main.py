@@ -64,9 +64,9 @@ if __name__ == "__main__":
     # Example coordinates
     coordinates = [
         # (-33.8688, 151.2093),  # Example coordinate 1
-        (19.200000, 80.100000)   # Example coordinate 2
+        # (19.200000, 80.100000)   # Example coordinate 2
         # (44.612379390791055, 7.525144278903881)
-        # (12.8659168, 74.92452) #sahyadri
+        (12.8659168, 74.92452) #sahyadri
         # (13.183904195454893, 74.93374807956195) #nitte
     ]
     
