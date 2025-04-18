@@ -40,3 +40,27 @@
 .read-the-docs {
   color: #888;
 }
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.map-container {
+  height: 500px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.image-preview {
+  max-width: 100%;
+  margin-top: 20px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
