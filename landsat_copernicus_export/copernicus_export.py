@@ -2,7 +2,7 @@ import ee
 from config import COPERNICUS_SETTINGS, EXPORT_SETTINGS
 from roi_utils import get_roi_bounds
 
-def process_copernicus_image(roi, index):
+def process_copernicus_image(roi, project_name):
     """
     Process and export a Copernicus image for the given ROI
     Args:
@@ -20,11 +20,11 @@ def process_copernicus_image(roi, index):
     
     export_task = ee.batch.Export.image.toDrive(
         image=img_visualized,
-        description=f'Copernicus_Image_{index}',
+        description=f'Copernicus_Image_{project_name}',
         folder=COPERNICUS_SETTINGS['export_folder'],
-        fileNamePrefix=f'Copernicus_Image_{index}',
+        fileNamePrefix=f'{project_name}_Copernicus_Image',
         region=get_roi_bounds(roi),
         **EXPORT_SETTINGS
     )
     export_task.start()
-    print(f"Started Copernicus export task {index}")
+    print(f"Started Copernicus export task {project_name}")

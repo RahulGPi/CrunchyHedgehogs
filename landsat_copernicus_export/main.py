@@ -6,7 +6,7 @@ from drive_utils import DriveManager
 from config import COPERNICUS_SETTINGS, LANDSAT_SETTINGS , DRIVE_SETTINGS
 from image_utils import ImageConverter
 
-def process_coordinates(coord_list):
+def process_coordinates(coord_list, project_name):
     """
     Process a list of coordinates to export both Landsat and Copernicus images,
     then download and clean up from Drive.
@@ -20,12 +20,12 @@ def process_coordinates(coord_list):
         roi = create_roi(lat, lon)
         
         # Export images
-        landsat_prefix = f'Landsat_Image_{i}'
-        copernicus_prefix = f'Copernicus_Image_{i}'
+        landsat_prefix = f'{project_name}_Landsat_Image'
+        copernicus_prefix = f'{project_name}_Copernicus_Image'
         drive_manager.delete_all_files_in_drive_folder(LANDSAT_SETTINGS['export_folder'])
         drive_manager.delete_all_files_in_drive_folder(COPERNICUS_SETTINGS['export_folder'])
-        process_landsat_image(roi, i)
-        process_copernicus_image(roi, i)
+        process_landsat_image(roi, project_name)
+        process_copernicus_image(roi, project_name)
         
         # Process Landsat export
         print("\nProcessing Landsat export...")
@@ -57,7 +57,7 @@ def process_coordinates(coord_list):
     print(f"\nConversion complete:")
     print(f"Landsat PNGs: {len(landsat_converted)} files")
     print(f"Copernicus PNGs: {len(copernicus_converted)} files")
-
+    
 
 
 if __name__ == "__main__":
@@ -71,6 +71,6 @@ if __name__ == "__main__":
     ]
     
     # Run the export process
-    process_coordinates(coordinates)
+    process_coordinates(coordinates, "blr")
     # copernicus resize
     ImageConverter.resizer()

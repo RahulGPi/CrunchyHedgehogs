@@ -2,7 +2,7 @@ import ee
 from config import LANDSAT_SETTINGS, EXPORT_SETTINGS
 from roi_utils import get_roi_bounds
 
-def process_landsat_image(roi, index):
+def process_landsat_image(roi, project_name):
     """
     Process and export a Landsat image for the given ROI
     Args:
@@ -31,11 +31,11 @@ def process_landsat_image(roi, index):
     
     export_task = ee.batch.Export.image.toDrive(
         image=img_visualized,
-        description=f'Landsat_Image_{index}',
+        description=f'Landsat_Image_{project_name}',
         folder=LANDSAT_SETTINGS['export_folder'],
-        fileNamePrefix=f'Landsat_Image_{index}',
+        fileNamePrefix=f'{project_name}_Landsat_Image',
         region=get_roi_bounds(roi),
         **EXPORT_SETTINGS
     )
     export_task.start()
-    print(f"Started Landsat export task {index}")
+    print(f"Started Landsat export task {project_name}")
