@@ -71,6 +71,6 @@ if __name__ == "__main__":
     ]
     
     # Run the export process
-    process_coordinates(coordinates, "blr")
+    process_coordinates(coordinates, "main_got_run")
     # copernicus resize
     ImageConverter.resizer()

@@ -37,4 +37,4 @@ def get_image(filename):
     return send_from_directory(LANDSAT_IMAGE_DIR, filename)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
