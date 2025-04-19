@@ -71,7 +71,7 @@ const ProjectDataPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project_name: projectId,
-          points: points.map((p) => [p.x, p.y]),
+          points: points,
         }
         ),
       });

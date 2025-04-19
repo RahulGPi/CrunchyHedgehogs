@@ -85,7 +85,15 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
     }
   };
   const handleSelectionComplete = () => {
-    onSelectionComplete(points);
+    const pointsObjects = points.map((p) => ({
+        x: p.x,
+        y: p.y
+    }));
+
+    
+
+
+    onSelectionComplete(pointsObjects);
     setPoints([]);
   };
   return (
