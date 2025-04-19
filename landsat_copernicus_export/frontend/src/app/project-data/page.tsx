@@ -126,15 +126,19 @@ const ProjectDataPage = () => {
           <CardContent>
             <div className="relative w-full h-[300px] flex justify-center items-center">
               {loading && !processedImage && <Skeleton className="w-full h-full" />}
-              {processedImage ? (
-                <Image
-                  src={processedImage}
-                  alt="Processed Satellite Map"
-                  fill
-                  className="object-contain object-center"
-                />
-              ) : (
-                <Image
+              {processedImage ? (                
+                  <Image
+                    src={processedImage}
+                    alt="Processed Satellite Map"
+                    fill
+                    className="object-contain object-center"
+                  />                
+              ) : satelliteImage ?(
+                <div className="w-full h-full relative">
+                    <Image
+                  
+                  
+                 
                   src={satelliteImage}
                   alt="Satellite Image"
                   fill
@@ -142,6 +146,9 @@ const ProjectDataPage = () => {
                 />
               )}
               <ImageSelector
+               
+                
+                
                 imageUrl={satelliteImage}
                 onSelectionComplete={handleROISelection}
                 projectId={projectId}
