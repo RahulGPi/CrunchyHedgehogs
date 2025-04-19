@@ -13,14 +13,15 @@ def algorithm(project_name):
 
     # smth = dict(response.text)
     # print(smth)
+    print(response.text)
     t_text = eval(response.text)
     print(t_text)
     return t_text
 
 
-if __name__ == "__main__":
-    t_n = algorithm()
-    a = ImageConverter
-    points = [(0,500),(570,570),(570,87),(50,50)]
-    x = a.roi_definer(points)
-    a.highlight_point_if_inside_polygon(x,points,t_n)
+# if __name__ == "__main__":
+#     t_n = algorithm()
+#     a = ImageConverter
+#     points = [(0,500),(570,570),(570,87),(50,50)]
+#     x = a.roi_definer(points)
+#     a.highlight_point_if_inside_polygon(x,points,t_n)

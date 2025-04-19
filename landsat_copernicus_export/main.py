@@ -5,8 +5,9 @@ from copernicus_export import process_copernicus_image
 from drive_utils import DriveManager
 from config import COPERNICUS_SETTINGS, LANDSAT_SETTINGS , DRIVE_SETTINGS
 from image_utils import ImageConverter
-from flask import Flask, request, jsonify
-import os
+# from flask import Flask, request, jsonify
+# import os
+from gemini import algorithm
 
 def process_coordinates(coord_list, project_name):
     """
@@ -61,44 +62,13 @@ def process_coordinates(coord_list, project_name):
     print(f"Copernicus PNGs: {len(copernicus_converted)} files")
     
 
-app = Flask(__name__)
-
-@app.route('/api/get-image', methods=['GET'])
-def get_image():
-    project_name = request.args.get('project')
-    image_path = f"landsat_copernicus_export/downloaded_images/landsat_images/{project_name}_Landsat_Image.png"
-    
-    if not os.path.exists(image_path):
-        return jsonify({"error": "Image not found"}), 404
-    
-    return jsonify({"imagePath": f"/{image_path}"})
-
-
-@app.route('/api/save-project', methods=['POST'])
-def save_project():
-    data = request.get_json()  # Use get_json to handle JSON data
-    project_name = data.get('projectName')
-    latitude = data.get('latitude')
-    longitude = data.get('longitude')
-    location_name = data.get('locationName')    
-    
-    # Create a 'projects' folder if it doesn't exist
-    projects_dir = 'landsat_copernicus_export/projects'
-    if not os.path.exists(projects_dir):
-        os.makedirs(projects_dir)
-    
-    # Create a file with the project name and save the details
-    file_path = os.path.join(projects_dir, f"{project_name}.txt")
-    with open(file_path, 'w') as f:
-        f.write(f"Latitude: {latitude}\n")
-        f.write(f"Longitude: {longitude}\n")
-        f.write(f"Location Name: {location_name}\n")
-
-    # Call process_coordinates to generate the image
-    process_coordinates([(float(latitude), float(longitude))], project_name)  # Pass coordinates as a list of tuples
-        
-    return jsonify({"success": True, "projectname": project_name, "latitude": latitude, "longitude": longitude})
-
-
-if __name__ == '__main__':
-    app.run(debug=True, port = 5000)
+if __name__ == "__main__":
+    project = "Anisha"
+    coordinates= [#(40.741895,-73.989308),
+                  (12.884149081259784,74.85278629437317)]
+    process_coordinates(coord_list=coordinates, project_name=project)
+    t_n = algorithm(project)
+    a = ImageConverter
+    points = [(0,500),(570,570),(570,87),(50,50)]
+    x = a.roi_definer(points,project)
+    a.highlight_point_if_inside_polygon(x,points,t_n,project)

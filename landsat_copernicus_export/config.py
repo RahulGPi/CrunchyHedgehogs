@@ -76,5 +76,6 @@ not trying to destroy nature/landscape/greenery of the place
 RETURN ONLY IMAGE COORDINATES IN A TUPLE EXAMPLE "(X,Y)"
 do not return any other character other than (x,y)
 x,y <= 600
+ONLY COORDINATES NOTHING ELSE
 give me image coordinates without in respect to the satellite img radius
 '''
