@@ -82,8 +82,7 @@ const ProjectDataPage = () => {
   const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
-        }),
-      });
+        
       if (!analysisResponse.ok) throw new Error("Analysis failed");
       const analysisData = await analysisResponse.json();
       setAnalysisPoint(analysisData.coordinates);
