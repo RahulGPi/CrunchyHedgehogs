@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
@@ -57,34 +57,50 @@ const ProjectDataPage = () => {
       setLoading(false);
     }
   }, [projectId]);
+
   const hasImage = satelliteImage !== "";
 
-  useEffect(() => {}, [pathname, satelliteImage])
+  useEffect(() => {
+    // This empty effect can be removed if not needed
+  }, [pathname, satelliteImage]);
 
-    const handleROISelection = async (points: { x: number; y: number }[]) => {
+  const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
       console.log("Processing ROI with points:", points);
       
+      // Convert points to relative coordinates (0-1 range)
+      const canvas = document.querySelector('canvas');
+      if (!canvas) throw new Error("Canvas not found");
+      
+      const normalizedPoints = points.map(p => ({
+        x: p.x / canvas.width,
+        y: p.y / canvas.height
+      }));
+  
       const response = await fetch("http://localhost:5000/api/process_roi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project_name: projectId,
-          points: points,
-        }
-        ),
+          points: normalizedPoints,
+        }),
       });
-
-      if (!response.ok) throw new Error("ROI processing failed");
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "ROI processing failed");
+      }
       
       const data = await response.json();
       console.log("Processed image path:", data.image_path);
+      
+      // Update the processed image path
       setProcessedImage(data.image_path);
       
     } catch (error) {
       console.error("ROI processing error:", error);
-      setError("Failed to process ROI. Please try again.");
+      setError(error instanceof Error ? error.message : "Failed to process ROI");
     } finally {
       setIsProcessing(false);
     }
@@ -122,8 +138,9 @@ const ProjectDataPage = () => {
           </CardHeader>
           <CardContent>
             <div className="relative w-full h-[300px] flex justify-center items-center bg-gray-100 rounded-lg">
-              {hasImage && (
-                  processedImage ? (
+              {hasImage ? (
+                <>
+                  {processedImage ? (
                     <Image
                       src={processedImage}
                       alt="Processed Satellite Map"
@@ -133,23 +150,20 @@ const ProjectDataPage = () => {
                     />
                   ) : (
                     <>
-                  <Image
-                    src={satelliteImage}
-                    alt="Satellite Image"
-                    fill
-                    className="object-contain"
-                    priority
-                 
-                  />
-                 
-                 
-                  
-                  
-                  <ImageSelector
-                    imageUrl={satelliteImage}
-                    onSelectionComplete={handleROISelection}
-                    projectId={projectId}
-                  />
+                      <Image
+                        src={satelliteImage}
+                        alt="Satellite Image"
+                        fill
+                        className="object-contain"
+                        priority
+                      />
+                      <ImageSelector
+                        imageUrl={satelliteImage}
+                        onSelectionComplete={handleROISelection}
+                        projectId={projectId}
+                      />
+                    </>
+                  )}
                 </>
               ) : (
                 <div className="text-muted-foreground">

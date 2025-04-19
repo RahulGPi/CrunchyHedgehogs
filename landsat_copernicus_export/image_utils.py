@@ -86,7 +86,7 @@ class ImageConverter:
 
     def roi_definer(points, project_name):
         # 1. Load the image
-        image = Image.open(f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png").convert("RGBA")  # Replace with your image path
+        image = Image.open(f"landsat_copernicus_export//frontend//public//{project_name}_Landsat_Image.png").convert("RGBA")  # Replace with your image path
         # image = Image.open("your_image.jpg").convert("RGBA")
         width, height = image.size
 
@@ -100,7 +100,7 @@ class ImageConverter:
 
         # 4. Blend the overlay with the original image
         highlighted_image = Image.alpha_composite(image, overlay)
-        img_file = f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png"
+        img_file = f"landsat_copernicus_export//frontend//public//{project_name}_Landsat_Image.png"
         # 5. Save/display the result (convert back to RGB if saving as JPEG)
         # highlighted_image.show()
         highlighted_image.convert("RGB").save(img_file)
