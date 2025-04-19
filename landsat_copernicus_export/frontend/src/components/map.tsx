@@ -1,54 +1,57 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-// Leaflet's default marker icon path fix
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-    iconUrl: icon.src,
-    shadowUrl: iconShadow.src
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+import 'leaflet/dist/leaflet.css'; // Make sure this is correctly imported
+import L, { LatLngBounds } from 'leaflet';
 
 interface MapProps {
   center: { lat: number; lng: number };
-  zoom: number;
   style: React.CSSProperties;
-  onSelectionComplete: (bounds: {
-    _northEast: { lat: number; lng: number };
-    _southWest: { lat: number; lng: number };
-  }) => void;
+  onSelectionComplete: (bounds: { northEast: { x: number, y: number }, southWest: { x: number, y: number } }) => void;
   projectId: string;
+  imagePath: string; // Add imagePath prop
 }
 
 const Map: React.FC<MapProps> = ({ center, zoom, style, onSelectionComplete, projectId }) => {
   const [startLatLng, setStartLatLng] = useState<L.LatLng | null>(null);
   const [bounds, setBounds] = useState<L.LatLngBounds | null>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const [imageSize, setImageSize] = useState<{ width: number, height: number } | null>(null);
+  const [mapInitialized, setMapInitialized] = useState(false);
+
+  // Update the type of 'bounds' to LatLngBounds | null
+  const [currentBounds, setCurrentBounds] = useState<LatLngBounds | null>(null);
+
+  const handleImageLoad = useCallback((event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const img = event.currentTarget;
+    setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+  }, []);
 
   const handleMouseDown = (e: L.LeafletMouseEvent) => {
-    setStartLatLng(e.latlng);
+    if (mapInitialized && imageSize) {
+      const { x, y } = mapRef.current!.containerPointToLatLng(e.containerPoint);
+      setStartLatLng(e.latlng);
+    }
   };
 
   const handleMouseMove = (e: L.LeafletMouseEvent) => {
-    if (startLatLng) {
-      const newBounds = L.latLngBounds(startLatLng, e.latlng);
-      setBounds(newBounds);
+    if (mapInitialized && imageSize && startLatLng) {
+      setBounds(L.latLngBounds(startLatLng, e.latlng));
     }
   };
 
   const handleMouseUp = () => {
-    if (bounds) {
-      onSelectionComplete({
-        _northEast: bounds.getNorthEast(),
-        _southWest: bounds.getSouthWest(),
-      });
+    if (mapInitialized && imageSize && bounds) {
+      const { _northEast, _southWest } = bounds;
+      const { x: neX, y: neY } = mapRef.current!.latLngToContainerPoint(_northEast);
+      const { x: swX, y: swY } = mapRef.current!.latLngToContainerPoint(_southWest);
+
+      // Adjust calculation to be relative to the image dimensions
+      const northEast = { x: neX, y: neY };
+      const southWest = { x: swX, y: swY };
+
+      onSelectionComplete({ northEast, southWest });
       setStartLatLng(null);
       setBounds(null);
     }
@@ -56,17 +59,12 @@ const Map: React.FC<MapProps> = ({ center, zoom, style, onSelectionComplete, pro
 
   const MapEvents = () => {
     const map = useMapEvents({
+      load: () => {
+        setMapInitialized(true);
+      },
       mousedown: handleMouseDown,
       mousemove: handleMouseMove,
       mouseup: handleMouseUp,
-      zoomend: () => {
-        // Update bounds when zooming to keep selection visible
-        if (startLatLng) {
-          const currentCenter = map.getCenter();
-          const newBounds = L.latLngBounds(startLatLng, currentCenter);
-          setBounds(newBounds);
-        }
-      },
     });
 
     useEffect(() => {
@@ -77,39 +75,38 @@ const Map: React.FC<MapProps> = ({ center, zoom, style, onSelectionComplete, pro
   };
 
   useEffect(() => {
-    // Load initial view from local storage if available
-    const storedView = localStorage.getItem(`mapView_${projectId}`);
-    if (storedView) {
-      const { center: storedCenter, zoom: storedZoom } = JSON.parse(storedView);
-      if (mapRef.current) {
-        mapRef.current.setView(storedCenter, storedZoom);
-      }
+    if (mapRef.current && bounds) {
+      setCurrentBounds(bounds);
+    } else {
+      setCurrentBounds(null);
     }
-  }, [projectId]);
-
-  const handleMoveEnd = () => {
-    // Store current view in local storage
-    if (mapRef.current) {
-      const currentCenter = mapRef.current.getCenter();
-      const currentZoom = mapRef.current.getZoom();
-      localStorage.setItem(`mapView_${projectId}`, JSON.stringify({ center: currentCenter, zoom: currentZoom }));
-    }
-  };
+  }, [bounds]);
 
   return (
     <MapContainer
       center={center}
-      zoom={zoom}
+      zoom={13} // Adjust zoom level as needed
       style={{ ...style, cursor: 'crosshair' }}
       ref={mapRef}
-      onMoveend={handleMoveEnd}
+      crs={L.CRS.Simple} // Use a simple coordinate system
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {imageSize && (
+        <TileLayer
+          url={""} // Empty URL for the TileLayer
+          attribution=""
+          bounds={[[0, 0], [imageSize.height, imageSize.width]]}
+          noWrap={true}
+          minZoom={mapRef.current?.getMinZoom() || -10}
+          maxZoom={mapRef.current?.getMaxZoom() || 10}
+          tileSize={L.point(imageSize.width, imageSize.height)}
+          className="leaflet-tile-loaded"
+        />
+      )}
+
       <MapEvents />
-      {bounds && <Rectangle bounds={bounds} pathOptions={{ color: 'blue', fillOpacity: 0.2 }} />}
+      {currentBounds && <L.Rectangle bounds={currentBounds} pathOptions={{ color: 'blue', fillOpacity: 0.2 }} />}
     </MapContainer>
   );
 };
+
 export default Map;
-
-

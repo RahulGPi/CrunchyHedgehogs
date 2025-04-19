@@ -3,15 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SidebarLayout from "@/components/sidebar-layout";
 import Image from "next/image"; 
 
 interface SatelliteImagePageProps {
-  searchParams: { projectId: string };
+  searchParams: {};
 }
-
-const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams }) => {
+const SatelliteImagePage: React.FC<SatelliteImagePageProps> = () => {
   const router = useRouter();
   const projectId = searchParams.projectId;
   const [constructionGoals, setConstructionGoals] = useState("");
@@ -20,19 +19,9 @@ const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams })
 
   useEffect(() => {
     // Retrieve project details from local storage
-    const storedProjectName = localStorage.getItem("projectName");
-    const storedImageName = localStorage.getItem("imageName");
-
-    if (storedProjectName) {
-      setProjectName(storedProjectName);
-    }
-
-    if (storedImageName) {
-      setImageName(storedImageName);
-    }
   }, []);
 
-  const handleSave = () => {
+  const handleGo = () => {
     // Save project details to local storage
     localStorage.setItem("projectName", projectId);
     localStorage.setItem("imageName", `${projectId}_Landsat_Image.png`);
@@ -41,10 +30,7 @@ const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams })
     // Redirect to the project data page
     router.push(`/project-data?projectId=${projectId}`);
   };
-
-  const handleGo = () => {
-    router.push(`/project-data?projectId=${projectId}&constructionGoals=${encodeURIComponent(constructionGoals)}`);
-  };
+  
   return (
     <SidebarLayout>
       <div className="container mx-auto py-10">
@@ -76,12 +62,12 @@ const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams })
             <p className="text-gray-500">No image available.</p>
           </div>
         )}
-        {/* Save button */}
+        {/* GO button */}
         <div className="flex justify-start mt-6">
-          <Button onClick={handleSave} className="bg-primary text-primary-foreground hover:bg-primary/90 w-[150px] h-10 text-lg">
-            Save Project
+          <Button onClick={handleGo} className="bg-primary text-primary-foreground hover:bg-primary/90 w-[150px] h-10 text-lg">
+            GO
           </Button>
-        </div>
+      
       </div>
     </SidebarLayout>
   );
