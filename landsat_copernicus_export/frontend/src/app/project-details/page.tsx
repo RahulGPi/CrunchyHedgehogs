@@ -17,21 +17,46 @@ export default function ProjectDetails({}: ProjectDetailsProps) {
   const latitude = searchParams.get("latitude");
   const longitude = searchParams.get("longitude");
 
-  const [mapCenter, setMapCenter] = useState<[number, number]>([0, 0]);
-  const [isMapReady, setIsMapReady] = useState(false);
   const [imagePath, setImagePath] = useState<string | null>(null);
 
   useEffect(() => {
-    if (latitude && longitude) {
-      setMapCenter([Number(latitude), Number(longitude)]);
-      setIsMapReady(true);
+    if (projectName) {
+      setImagePath(
+        `/downloaded_images/landsat_images/${projectName}_Landsat_Image.png`
+      );
     }
+  }, [projectName]);
+
+  const mapCenter: [number, number] = [
+    Number(latitude) || 0,
+    Number(longitude) || 0,
+  ];
+
+  const MapComponent = () => {
+    if (!latitude || !longitude) return null;
+
+    return (
+      <MapContainer
+        center={mapCenter}
+        zoom={13}
+        style={{ height: "100%", width: "100%" }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <Marker position={mapCenter} icon={customIcon}>
+          <Popup>
+            Latitude: {latitude}, Longitude: {longitude}
+          </Popup>
+        </Marker>
+      </MapContainer>
+    );
+  };
+
+  useEffect(() => {}, [latitude, longitude]);
+  useEffect(() => {
   }, [latitude, longitude]);
-    useEffect(() => {
-        if (projectName) {
-            setImagePath(`/downloaded_images/landsat_images/${projectName}_Landsat_Image.png`);
-        }
-    }, [projectName]);
 
 
   const customIcon = L.icon({
@@ -43,10 +68,6 @@ export default function ProjectDetails({}: ProjectDetailsProps) {
     shadowSize: [68, 95],
     shadowAnchor: [22, 94],
   });
-  if (!projectName || !latitude || !longitude) {
-    return <div>Project details are missing.</div>;
-  }
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Project Details</h1>
@@ -61,25 +82,7 @@ export default function ProjectDetails({}: ProjectDetailsProps) {
           <span className="font-semibold">Longitude:</span> {longitude}
         </p>
       </div>
-      <div className="h-[400px] mb-4">
-        {isMapReady && (
-          <MapContainer
-            center={mapCenter}
-            zoom={13}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            />
-            <Marker position={mapCenter} icon={customIcon}>
-              <Popup>
-                Latitude: {latitude}, Longitude: {longitude}
-              </Popup>
-            </Marker>
-          </MapContainer>
-        )}
-      </div>
+      <div className="h-[400px] mb-4"><MapComponent/></div>
         {imagePath && (
             <div className="relative w-full h-[500px]">
             <Image
