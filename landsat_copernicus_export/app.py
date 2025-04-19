@@ -5,7 +5,7 @@ import uuid
 import threading
 # from werkzeug.utils import secure_filename
 from config import EE_PROJECT, LANDSAT_SETTINGS, COPERNICUS_SETTINGS, DRIVE_SETTINGS
-from roi_utils import create_roi
+from roi_utils import create_roi, process_roi
 from main import process_coordinates, create_roi_image
 from landsat_export import process_landsat_image
 from copernicus_export import process_copernicus_image
@@ -133,7 +133,7 @@ def process_roi():
         if not project_name or not points:
             return jsonify({'error': 'Invalid request data'}), 400
 
-        image_path = create_roi_image(points, project_name)
+        image_path = process_roi(points, project_name)
         return jsonify({'image_path': image_path})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
