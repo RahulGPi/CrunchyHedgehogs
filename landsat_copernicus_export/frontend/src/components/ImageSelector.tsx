@@ -75,3 +75,5 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
       }
     }
   };
+
+export default ImageSelector;
