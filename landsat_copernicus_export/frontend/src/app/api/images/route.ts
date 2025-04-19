@@ -1,28 +1,27 @@
 import { NextResponse } from 'next/server';
-import { list_project_files } from 'api/default';
+import { default_api } from '@/api/api';
 
 export async function GET() {
   try {
-    const response = await list_project_files({ path: 'landsat_copernicus_export/frontend/public' });
+    const response = await default_api.list_project_files({ path: 'landsat_copernicus_export/frontend/public' });
 
     if (response.status === 'succeeded') {
-        const files = JSON.parse(response.result);
-      const imageFiles = files
-        .filter((file: string) => {
-          const lowerCaseFile = file.toLowerCase();
-          return (
-            lowerCaseFile.endsWith('.png') ||
-            lowerCaseFile.endsWith('.jpg') ||
-            lowerCaseFile.endsWith('.jpeg') ||
-            lowerCaseFile.endsWith('.gif') ||
-            lowerCaseFile.endsWith('.bmp')
-          );
-        })
-        .map((file: string) => file.split('/').pop());
-      
-      return NextResponse.json({ images: imageFiles });
+        const files = response.result ? JSON.parse(response.result) : [];
+        const imageFiles = files
+            .filter((file: string) => {
+                const lowerCaseFile = file.toLowerCase();
+                return (
+                    lowerCaseFile.endsWith('.png') ||
+                    lowerCaseFile.endsWith('.jpg') ||
+                    lowerCaseFile.endsWith('.jpeg') ||
+                    lowerCaseFile.endsWith('.gif') ||
+                    lowerCaseFile.endsWith('.bmp')
+                );
+            })
+            .map((file: string) => file.split('/').pop() as string);
+        return NextResponse.json({ images: imageFiles });
     } else {
-      return NextResponse.json({ error: 'Failed to list project files' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to list project files' }, { status: 500 });
     }
   } catch (error) {
     console.error('Error fetching image list:', error);
