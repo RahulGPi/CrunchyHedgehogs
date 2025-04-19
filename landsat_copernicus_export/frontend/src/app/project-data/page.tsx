@@ -4,60 +4,47 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import SidebarLayout from '@/components/sidebar-layout';
 
 const ProjectDataPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  //Loading state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const projectId = searchParams.get('projectId') || ''; // Provide a default value
+  const projectId = searchParams.get('projectId') || '';
   const constructionGoals = searchParams.get('constructionGoals') || '';
   
-  const [projectName, setProjectName] = useState('');
-  const [satelliteImage, setSatelliteImage] = useState("/Anisha_Landsat_Image.png");
+  const [satelliteImage, setSatelliteImage] = useState("");
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [analysisPoint, setAnalysisPoint] = useState<[number, number] | null>(null);
-
-  useEffect(() => {
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      const projects = JSON.parse(storedProjects);
-      const project = projects.find((p: { id: string | null }) => p.id === projectId);
-      if (project) {
-        setProjectName(project.name);
-      }
-    }
-    setLoading(false)
-  }, [projectId]);
 
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
+        console.log(`Fetching image for project: ${projectId}`);
+        
         const response = await fetch(`http://localhost:5000/api/get_latest_image/${projectId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch image: ${response.statusText}`);
         }
+        
         const data = await response.json();
-        setSatelliteImage(`/${projectId}_Landsat_Image.png`);
+        const imagePath = `/${projectId}_Landsat_Image.png`;
+        console.log(`Setting image path to: ${imagePath}`);
+        setSatelliteImage(imagePath);
+        
       } catch (err) {
-        console.log("Error:",err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
+        console.error("Error fetching image:", err);
+        setError(err instanceof Error ? err.message : "An unexpected error occurred");
+        // Fallback to default image
+        setSatelliteImage("/Anisha_Landsat_Image.png");
+      } finally {
         setLoading(false);
       }
     };
@@ -65,111 +52,120 @@ const ProjectDataPage = () => {
     if (projectId) {
       fetchImage();
     } else {
-      setLoading(false);
       setError("Project ID not found.");
+      setLoading(false);
     }
   }, [projectId]);
-
-  if (loading) {
-    return <Skeleton className="w-[100px] h-[20px]" />;
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
-  }
 
   const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
-      const analysisResponse = await fetch("http://localhost:5000/api/get_analysis_point");
-        
-      const analysisData = await analysisResponse.json();
-      setAnalysisPoint(analysisData.coordinates);
-
-      // Process ROI
-      const roiResponse = await fetch("http://localhost:5000/api/process_roi", {
+      console.log("Processing ROI with points:", points);
+      
+      const response = await fetch("http://localhost:5000/api/process_roi", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project_name: projectId,
           points: points.map((p) => [p.x, p.y]),
-          analysis_point: analysisData.coordinates,
         }),
       });
 
-      if (!roiResponse.ok) throw new Error("ROI processing failed");
-      const roiData = await roiResponse.json();
-
-      setProcessedImage(roiData.image_path);
+      if (!response.ok) throw new Error("ROI processing failed");
+      
+      const data = await response.json();
+      console.log("Processed image path:", data.image_path);
+      setProcessedImage(data.image_path);
+      
     } catch (error) {
-      console.error("Error processing ROI:", error);
-      alert("Failed to process ROI. Please try again.");
+      console.error("ROI processing error:", error);
+      setError("Failed to process ROI. Please try again.");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleSave = () => {
-    router.push("/dashboard");
-  };
+  if (loading) {
+    return (
+      <SidebarLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Skeleton className="w-[300px] h-[300px]" />
+        </div>
+      </SidebarLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <SidebarLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-red-500 p-4 border rounded-lg bg-background">
+            Error: {error}
+          </div>
+        </div>
+      </SidebarLayout>
+    );
+  }
 
   return (
     <SidebarLayout>
       <div className="container mx-auto py-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Satellite Map with ROI Selection */}
+        {/* Satellite Map Card */}
         <Card>
           <CardHeader>
             <CardTitle>Satellite Map</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="relative w-full h-[300px] flex justify-center items-center">
-              {loading && !processedImage && <Skeleton className="w-full h-full" />}
-              {processedImage ? (                
-                  <Image
-                    src={processedImage}
-                    alt="Processed Satellite Map"
-                    fill
-                    className="object-contain object-center"
-                  />                
-              ) : satelliteImage ?(
-                <div className="w-full h-full relative">
-                    <Image
-                  
-                  
-                 
-                  src={satelliteImage}
-                  alt="Satellite Image"
+            <div className="relative w-full h-[300px] flex justify-center items-center bg-gray-100 rounded-lg">
+              {processedImage ? (
+                <Image
+                  src={processedImage}
+                  alt="Processed Satellite Map"
                   fill
-                  className="object-contain object-center"
+                  className="object-contain"
+                  priority
                 />
+              ) : satelliteImage ? (
+                <>
+                  <Image
+                    src={satelliteImage}
+                    alt="Satellite Image"
+                    fill
+                    className="object-contain"
+                    priority
+                    onError={(e) => {
+                      console.error("Image load error:", e);
+                      setError("Failed to load satellite image");
+                    }}
+                  />
+                  <ImageSelector
+                    imageUrl={satelliteImage}
+                    onSelectionComplete={handleROISelection}
+                    projectId={projectId}
+                  />
+                </>
+              ) : (
+                <div className="text-muted-foreground">No image available</div>
               )}
-              <ImageSelector
-               
-                
-                
-                imageUrl={satelliteImage}
-                onSelectionComplete={handleROISelection}
-                projectId={projectId}
-              />
+              
               {isProcessing && (
-                <div className="mt-4 text-center text-muted-foreground">
-                  Processing ROI and analysis...
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="text-white">Processing ROI...</div>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Construction Goals */}
+        {/* Construction Goals Card */}
         <Card>
           <CardHeader>
             <CardTitle>Construction Goals</CardTitle>
           </CardHeader>
           <CardContent>
             <Input
-              value={constructionGoals || ""}              
+              value={constructionGoals}
+              readOnly
               className="min-h-[200px] bg-muted"
             />
           </CardContent>
@@ -178,13 +174,13 @@ const ProjectDataPage = () => {
         {/* Save Button */}
         <div className="md:col-span-2 flex justify-end">
           <Button 
-            onClick={handleSave} 
-            className="bg-primary text-primary-foreground hover:bg-primary/80 px-8 py-4"
+            onClick={() => router.push("/dashboard")}
+            className="px-8 py-4"
           >
             Save Project
           </Button>
         </div>
-      </div>  
+      </div>
     </SidebarLayout>
   );
 };
