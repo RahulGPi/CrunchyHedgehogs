@@ -14,32 +14,32 @@ export interface Location {
 
 /**
  * Represents information about a geographical location.
- */
+ */ 
 export interface GeoLocationInfo {
   /**
    * The display name of the location.
    */
-displayName: string;
-  /**
-   * The latitude and longitude coordinates of the location.
-   */
-  location: Location;
+  name: string;
+  lat: number;
+  lng: number;
 }
 
 /**
  * Asynchronously retrieves geographic information for a given location based on latitude and longitude.
  *
- * @param location The location for which to retrieve geographic data.
+ * @param latitude The latitude of the location.
+* @param longitude The longitude of the location.
  * @returns A promise that resolves to a GeoLocationInfo object containing the display name and coordinates.
  */
-export async function getGeoLocationInfo(location: Location): Promise<GeoLocationInfo> {
-  // TODO: Implement this by calling an API.
+export async function getGeoLocationInfo(latitude: number, longitude: number): Promise<GeoLocationInfo> {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+  );
+  const data = await response.json();
 
   return {
-    displayName: 'Some Location',
-    location: {
-      lat: location.lat,
-      lng: location.lng,
-    },
+    name: data.display_name,
+    lat: latitude,
+    lng: longitude,
   };
 }

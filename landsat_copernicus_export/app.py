@@ -16,8 +16,12 @@ def get_image():
 @app.route('/api/save-project', methods=['POST'])
 def save_project():
     data = request.json
-    print("Saved project:", data)  # Replace with database logic
-    return jsonify({"success": True})
+    project_name = data.get('projectName')
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    location_name = data.get('locationName')
+    print(f"Project Name: {project_name}, Latitude: {latitude}, Longitude: {longitude}, Location Name: {location_name}")  # Replace with database logic
+    return jsonify({"success": True, "projectname": project_name})
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

@@ -2,69 +2,125 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import SidebarLayout from "@/components/sidebar-layout";
+import { useRouter } from "next/navigation";
+import { getGeoLocationInfo } from "@/services/geo-location";
+import { useToast } from "@/hooks/use-toast";
 
-const NewProjectForm = () => {
-  const router = useRouter();
+export default function NewProjectPage() {
   const [projectName, setProjectName] = useState("");
-  const [location, setLocation] = useState({
-    displayName: "",
-    coordinates: { lat: 0, lng: 0 },
-  });
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLocationSelect = (/* event from map component */) => {
-    // Placeholder: Replace with actual map selection logic
-    const selectedLocation = {
-      displayName: "Selected Location",
-      coordinates: { lat: 34.0522, lng: -118.2437 }, // Example coordinates
-    };
-    setLocation(selectedLocation);
-  };
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  const handleSubmit = () => {
-    // Navigate to satellite image screen
-    router.push("/satellite-image");
+    const trimmedProjectName = projectName.trim();
+    const trimmedLatitude = latitude.trim();
+    const trimmedLongitude = longitude.trim();
+
+    if (
+      isNaN(Number(trimmedLatitude)) ||
+      isNaN(Number(trimmedLongitude))
+    ) {
+      const errorMessage = "Invalid latitude or longitude values.";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: errorMessage,
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const locationInfo = await getGeoLocationInfo(
+        Number(trimmedLatitude),
+        Number(trimmedLongitude)
+      );
+      const response = await fetch("/api/save-project", {
+        method: "POST",
+        body: JSON.stringify({
+          projectName,
+          latitude,
+          longitude,
+          locationName: locationInfo.name,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save project");
+      }
+
+      router.push("/dashboard");
+    } catch (err: any) {
+      const errorMessage = err.message || "An error occurred while saving the project.";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: errorMessage,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <SidebarLayout>
-      <div className="container mx-auto py-10">
-        <h1 className="text-2xl font-semibold mb-4">Create New Project</h1>
-        <div className="flex flex-col space-y-4">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Label htmlFor="projectName">Project Name</Label>
           <Input
             type="text"
-            placeholder="Project Name"
+            id="projectName"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
+            placeholder="Enter project name"
+            required
           />
 
-          {/* Placeholder for Map Component */}
-          <div className="border rounded-md p-4">
-            <p>Map Location Selector (Implement Map Component Here)</p>
-            <Button onClick={handleLocationSelect} className="mt-2 bg-accent text-accent-foreground hover:bg-accent/80">
-              Select Location
-            </Button>
+          {/* Latitude Input */}
+
+          <div>
+            <Label htmlFor="latitude">Latitude</Label>
+            <Input
+              type="number"
+              id="latitude"
+              value={latitude}
+              onChange={(e) => setLatitude(e.target.value)}
+              placeholder="Enter latitude"
+              required
+            />
+
+            {/* Longitude Input */}
           </div>
+          <div>
+            <Label htmlFor="longitude">Longitude</Label>
+            <Input
+              type="number"
+              id="longitude"
+              value={longitude}
+              onChange={(e) => setLongitude(e.target.value)}
+              placeholder="Enter longitude"
+              required
+            />
 
-          {location.displayName && (
-            <div className="mt-2">
-              <p>
-                Location: {location.displayName} (Lat: {location.coordinates.lat}, Lng:{" "}
-                {location.coordinates.lng})
-              </p>
-            </div>
-          )}
-
-          <Button onClick={handleSubmit} className="bg-primary text-primary-foreground hover:bg-primary/80">
-            Create Project
+            {/* Create Project Button */}
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Creating..." : "Create Project"}
           </Button>
-        </div>
+        </form>
       </div>
-    </SidebarLayout>
+    </div>
   );
-};
-
-export default NewProjectForm;
-
+}
