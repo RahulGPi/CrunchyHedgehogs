@@ -147,39 +147,39 @@ def process_roi():
         except Exception as e:
             return jsonify({'error': f"Image processing error: {str(e)}"}), 500
 
+# Add these new endpoints to your existing app.py
 
 @app.route('/api/get_latest_image/<project_name>', methods=['GET'])
 def get_latest_image(project_name):
-   """
-   Flask route to send the Landsat image for a specific project to the frontend.
-   
-   Args:
-       project_name (str): The name of the project to retrieve the image for.
-   
-   Returns:
-       JSON: Contains the filename of the Landsat image for the specified project,
-             or None if no image is found.
-   """
-   try:
-       # Construct the file path for the Landsat image of the given project.
-       image_path = os.path.join(
-           DRIVE_SETTINGS['download_dir'],
-           DRIVE_SETTINGS['landsat_dir'],
-           f"{project_name}_Landsat_Image.png"
-       )
-       
-       # Check if the image file exists.
-       if os.path.exists(image_path):
-           # If the file exists, return its filename.
-           return jsonify({'latest_image': f"{project_name}_Landsat_Image.png"})
-       else:
-           # If the file does not exist, return None.
-           return jsonify({'latest_image': None})
-   except Exception as e:
-       # If any error occurs, return a JSON response with an error message and a 500 status code.
-       return jsonify({'error': str(e)}), 500
+    """
+    Flask route to send the Landsat image for a specific project to the frontend.
+    
+    Args:
+        project_name (str): The name of the project to retrieve the image for.
+    
+    Returns:
+        JSON: Contains the filename of the Landsat image for the specified project,
+              or None if no image is found.
+    """
+    try:
+        # Construct the file path for the Landsat image of the given project.
+        image_path = os.path.join(
+            DRIVE_SETTINGS['download_dir'],
+            DRIVE_SETTINGS['landsat_dir'],
+            f"{project_name}_Landsat_Image.png"
+        )
+        
+        # Check if the image file exists.
+        if os.path.exists(image_path):
+            # If the file exists, return its filename.
+            return jsonify({'latest_image': f"{project_name}_Landsat_Image.png"})
+        else:
+            # If the file does not exist, return None.
+            return jsonify({'latest_image': None})
+    except Exception as e:
+        # If any error occurs, return a JSON response with an error message and a 500 status code.
+        return jsonify({'error': str(e)}), 500
 
-# Add these new endpoints to your existing app.py
 
 @app.route('/api/analyze_image', methods=['POST'])
 def analyze_image():
