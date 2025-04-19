@@ -19,14 +19,10 @@ const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams })
   const projectId = searchParams.projectId;
 
   useEffect(() => {
-    // For demo purposes, we'll use a fixed image path
-    // In a real app, you might get this from an API or props
     const loadImage = () => {
-      
-        // Assuming your image is in public/project-images/
-        // Replace with your actual image path
-        const imagePath = `/project-images/${projectId}_Landsat_Image.png`;
-        setSatelliteImageUrl(imagePath);
+      const imagePath = `/landsat_images/${projectId}_Landsat_Image.png`;
+      setSatelliteImageUrl(imagePath);
+      setIsLoading(false)
       
     };
 

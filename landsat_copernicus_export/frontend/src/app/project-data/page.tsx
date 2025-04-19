@@ -49,11 +49,7 @@ const ProjectDataPage = () => {
           throw new Error(`Failed to fetch image: ${response.statusText}`);
         }
         const data = await response.json();
-        if (data.latest_image) {
-          setSatelliteImage(`/landsat_images/${data.latest_image}`);
-        } else {
-          setError("No image found for this project.");
-        }
+        setSatelliteImage(`/${projectId}_Landsat_Image.png`);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
