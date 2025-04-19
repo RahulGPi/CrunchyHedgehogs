@@ -18,49 +18,95 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 interface MapProps {
   center: { lat: number; lng: number };
-  onLocationSelect: (location: { lat: number; lng: number }) => void;
+  zoom: number;
+  style: React.CSSProperties;
+  onSelectionComplete: (bounds: {
+    _northEast: { lat: number; lng: number };
+    _southWest: { lat: number; lng: number };
+  }) => void;
+  projectId: string;
 }
 
-const Map: React.FC<MapProps> = ({ center, onLocationSelect }) => {  
-
-  const [position, setPosition] = useState(center);
-  const [markerPosition, setMarkerPosition] = useState<{ lat: number, lng: number } | null>(null);
+const Map: React.FC<MapProps> = ({ center, zoom, style, onSelectionComplete, projectId }) => {
+  const [startLatLng, setStartLatLng] = useState<L.LatLng | null>(null);
+  const [bounds, setBounds] = useState<L.LatLngBounds | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
-  useEffect(() => {
-    setPosition(center);
-  }, [center]);
+  const handleMouseDown = (e: L.LeafletMouseEvent) => {
+    setStartLatLng(e.latlng);
+  };
+
+  const handleMouseMove = (e: L.LeafletMouseEvent) => {
+    if (startLatLng) {
+      const newBounds = L.latLngBounds(startLatLng, e.latlng);
+      setBounds(newBounds);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (bounds) {
+      onSelectionComplete({
+        _northEast: bounds.getNorthEast(),
+        _southWest: bounds.getSouthWest(),
+      });
+      setStartLatLng(null);
+      setBounds(null);
+    }
+  };
 
   const MapEvents = () => {
     const map = useMapEvents({
-      click: (e) => {
-        const { lat, lng } = e.latlng;
-        setMarkerPosition({ lat, lng });
-        onLocationSelect({ lat, lng });
-      }
+      mousedown: handleMouseDown,
+      mousemove: handleMouseMove,
+      mouseup: handleMouseUp,
+      zoomend: () => {
+        // Update bounds when zooming to keep selection visible
+        if (startLatLng) {
+          const currentCenter = map.getCenter();
+          const newBounds = L.latLngBounds(startLatLng, currentCenter);
+          setBounds(newBounds);
+        }
+      },
     });
+
+    useEffect(() => {
+      mapRef.current = map;
+    }, [map]);
+
     return null;
   };
 
   useEffect(() => {
-    if (mapRef.current && markerPosition) {
-        mapRef.current.flyTo(markerPosition, 13);
+    // Load initial view from local storage if available
+    const storedView = localStorage.getItem(`mapView_${projectId}`);
+    if (storedView) {
+      const { center: storedCenter, zoom: storedZoom } = JSON.parse(storedView);
+      if (mapRef.current) {
+        mapRef.current.setView(storedCenter, storedZoom);
+      }
     }
-  }, [markerPosition]);
+  }, [projectId]);
+
+  const handleMoveEnd = () => {
+    // Store current view in local storage
+    if (mapRef.current) {
+      const currentCenter = mapRef.current.getCenter();
+      const currentZoom = mapRef.current.getZoom();
+      localStorage.setItem(`mapView_${projectId}`, JSON.stringify({ center: currentCenter, zoom: currentZoom }));
+    }
+  };
 
   return (
     <MapContainer
-        ref={mapRef}
-        center={position}
-        zoom={13}
-        style={{ height: '400px', width: '100%' }}>
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <MapEvents />
-        {markerPosition && (
-            <Marker position={markerPosition}>
-                <Popup>Clicked location: {markerPosition.lat}, {markerPosition.lng}</Popup>
-            </Marker>
-        )}
+      center={center}
+      zoom={zoom}
+      style={{ ...style, cursor: 'crosshair' }}
+      ref={mapRef}
+      onMoveend={handleMoveEnd}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <MapEvents />
+      {bounds && <Rectangle bounds={bounds} pathOptions={{ color: 'blue', fillOpacity: 0.2 }} />}
     </MapContainer>
   );
 };

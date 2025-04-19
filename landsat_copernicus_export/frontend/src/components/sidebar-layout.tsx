@@ -25,7 +25,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({ children }) => {
       <Sidebar>
         <SidebarHeader>
           <Link href="/dashboard">
-            <h1 className=" font-semibold flex items-center" style={{  WebkitTextStroke: "1px black",  textShadow: "2px 2px 4px #000000", fontSize: "36px" }}>
+            <h1 className="font-semibold flex items-center text-3xl text-gray-800">
               <Home className="mr-2 h-5 w-5" />
               TARRAFLOW
             </h1>

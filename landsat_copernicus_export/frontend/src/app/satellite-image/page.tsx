@@ -13,36 +13,43 @@ interface SatelliteImagePageProps {
 
 const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams }) => {
   const router = useRouter();
-  const [constructionGoals, setConstructionGoals] = useState("");
-  const [satelliteImageUrl, setSatelliteImageUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const projectId = searchParams.projectId;
+  const [constructionGoals, setConstructionGoals] = useState("");
+  const [projectName, setProjectName] = useState<string | null>(null);
+  const [imageName, setImageName] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadImage = () => {
-      const imagePath = `/landsat_images/${projectId}_Landsat_Image.png`;
-      setSatelliteImageUrl(imagePath);
-      setIsLoading(false)
-      
-    };
+    // Retrieve project details from local storage
+    const storedProjectName = localStorage.getItem("projectName");
+    const storedImageName = localStorage.getItem("imageName");
 
-    loadImage();
-  }, [projectId]); // Re-run when projectId changes
+    if (storedProjectName) {
+      setProjectName(storedProjectName);
+    }
+
+    if (storedImageName) {
+      setImageName(storedImageName);
+    }
+  }, []);
+
+  const handleSave = () => {
+    // Save project details to local storage
+    localStorage.setItem("projectName", projectId);
+    localStorage.setItem("imageName", `${projectId}_Landsat_Image.png`);
+    localStorage.setItem("constructionGoals", constructionGoals);
+
+    // Redirect to the project data page
+    router.push(`/project-data?projectId=${projectId}`);
+  };
 
   const handleGo = () => {
     router.push(`/project-data?projectId=${projectId}&constructionGoals=${encodeURIComponent(constructionGoals)}`);
   };
-
   return (
     <SidebarLayout>
       <div className="container mx-auto py-10">
         <h1 className="text-2xl font-semibold mb-6">Project Satellite Image</h1>
-        
-        {isLoading ? (
-          <div className="h-[375px] flex items-center justify-center bg-gray-100 rounded-md">
-            Loading image...
-          </div>
-        ) : (
+        {projectName && imageName ? (
           <div className="flex flex-row items-start space-x-6">
             {/* Image container - left side */}
             <div className="rounded-md shadow-md w-[500px] h-[375px] relative">
@@ -50,13 +57,7 @@ const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams })
                 src={satelliteImageUrl}
                 alt="Satellite Image"
                 fill
-                className="rounded-md object-cover"
-                priority
-                onError={() => {
-                  // Fallback if image fails to load
-                  setSatelliteImageUrl(`/project-images/${projectId}_Landsat_Image.png`);
-                }}
-              />
+                className="rounded-md object-cover" priority />
             </div>
             
             {/* Construction goals - right side */}
@@ -70,16 +71,15 @@ const SatelliteImagePage: React.FC<SatelliteImagePageProps> = ({ searchParams })
               />
             </div>
           </div>
+        ) : (
+          <div className="flex justify-center items-center h-[375px] bg-gray-100 rounded-md">
+            <p className="text-gray-500">No image available.</p>
+          </div>
         )}
-        
-        {/* Submit button */}
+        {/* Save button */}
         <div className="flex justify-start mt-6">
-          <Button 
-            onClick={handleGo} 
-            className="bg-primary text-primary-foreground hover:bg-primary/90 w-[150px] h-10 text-lg"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Loading...' : 'Submit'}
+          <Button onClick={handleSave} className="bg-primary text-primary-foreground hover:bg-primary/90 w-[150px] h-10 text-lg">
+            Save Project
           </Button>
         </div>
       </div>
