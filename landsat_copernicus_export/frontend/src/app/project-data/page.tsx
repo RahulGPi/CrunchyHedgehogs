@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import SidebarLayout from "@/components/sidebar-layout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+
 // Dynamically import the Map component to prevent server-side rendering issues
 const Map = dynamic(() => import("@/components/map"), {
     ssr: false,
@@ -27,16 +28,23 @@ const ProjectDataPage = () => {
     const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 37.7749, lng: -122.4194 }); // Default: San Francisco
     const [mapZoom, setMapZoom] = useState(10);
 
-    // Available image options
-    const imageOptions = [
-        { value: "Anisha_Landsat_Image.png", label: "Image 1" },
-        { value: "0891c7a9-b987-4094-95d6-6231bf0807a0_Copernicus_Image.png", label: "Image 2" },
-        // Add more image options as needed
-    ];
+  const [imageOptions, setImageOptions] = useState<{ value: string; label: string; }[]>([]);
 
-    useEffect(() => {
+  useEffect(() => {
+    const fetchImageOptions = async () => {
+      try{
+        const response = await fetch("/api/images"); // Create this API route in your Next.js app
+        const data = await response.json();
+        setImageOptions(data.images.map((image: string) => ({ value: image, label: image })));
+      } catch (error) {
+        console.error("Error fetching image list:", error);
+        setError("Failed to load image list.");
+      } finally {
         setLoading(false);
-    }, []);
+      } 
+    };
+    fetchImageOptions();
+  }, []);
 
     const handleROISelection = async (bounds: {
         northEast: { lat: number; lng: number };
