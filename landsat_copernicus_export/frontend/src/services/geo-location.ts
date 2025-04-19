@@ -43,3 +43,39 @@ export async function getGeoLocationInfo(location: Location): Promise<GeoLocatio
     },
   };
 }
+
+/**
+ * Fetches project data from the backend API.
+ *
+ * @returns A promise that resolves to the project data.
+ */
+export async function getProjectData(): Promise<any> {
+  try {
+    const response = await fetch('http://localhost:5000/api/get_project_data');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch project data: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error fetching project data:', error);
+    throw new Error(`Failed to fetch project data: ${error.message}`);
+  }
+}
+
+/**
+ * Fetches user data from the backend API.
+ *
+ * @returns A promise that resolves to the user data.
+ */
+export async function getUserData(): Promise<any> {
+  try {
+    const response = await fetch('http://localhost:5000/api/get_user_data');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user data: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error fetching user data:', error);
+    throw new Error(`Failed to fetch user data: ${error.message}`);
+  }
+}

@@ -173,6 +173,83 @@ def process_roi():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/get_latest_image', methods=['GET'])
+def get_latest_image():
+    """
+    Flask route to send the latest Landsat image to the frontend.
+    It assumes the latest image is the one with the most recent timestamp in its filename.
+    
+    Returns:
+        JSON: Contains the filename of the latest Landsat image.
+    """
+    try:
+        # Construct the directory path where Landsat images are stored.
+        landsat_dir = os.path.join(DRIVE_SETTINGS['download_dir'], DRIVE_SETTINGS['landsat_dir'])
+        # Get a list of all files in the directory.
+        files = os.listdir(landsat_dir)
+        # Filter the list to only include PNG files (Landsat images).
+        png_files = [f for f in files if f.endswith('.png')]
+        # Return the filename of the latest Landsat image.
+        return jsonify({'latest_image': png_files[-1] if png_files else None})
+    except Exception as e:
+        # If any error occurs, return a JSON response with an error message and a 500 status code.
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/get_project_data', methods=['GET'])
+def get_project_data():
+    """
+    Flask route to send the project data to the frontend.
+    Currently, it returns a placeholder. You should replace this with actual data retrieval logic.
+    
+    Returns:
+        JSON: Contains project-related data.
+    """
+    try:
+        # Placeholder for project data.
+        # In a real application, this would involve querying a database or other data source.
+        project_data = {
+            'project_name': 'Example Project',
+            'description': 'This is a sample project.',
+            'status': 'Completed',
+            'analyst': 'John Doe',
+            'date_created': '2024-07-29'
+            # Add more project-related fields as needed.
+        }
+        return jsonify(project_data)
+    except Exception as e:
+        # If any error occurs, return a JSON response with an error message and a 500 status code.
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/get_user_data', methods=['GET'])
+def get_user_data():
+    """
+    Flask route to send user information and permissions to the frontend.
+    Currently, it returns a placeholder. You should replace this with actual user data retrieval logic.
+    
+    Returns:
+        JSON: Contains user information and permissions.
+    """
+    try:
+        # Placeholder for user data.
+        # In a real application, this would involve querying a database or other authentication system.
+        user_data = {
+            'username': 'testuser',
+            'email': 'testuser@example.com',
+            'permissions': {
+                'create_project': True,
+                'edit_project': False,
+                'view_reports': True
+                # Add more permissions as needed.
+            }
+            # Add more user-related fields as needed.
+        }
+        return jsonify(user_data)
+    except Exception as e:
+        # If any error occurs, return a JSON response with an error message and a 500 status code.
+        return jsonify({'error': str(e)}), 500
+
+
+
 if __name__ == '__main__':
     # Initialize Earth Engine
     import ee

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -20,10 +20,9 @@ import {
 import { Trash2 } from "lucide-react";
 import {toast} from "@/hooks/use-toast";
 
-interface Coordinates {
-  lat: number;
-  lng: number;
-}
+import { getProjectData, getUserData } from "@/services/geo-location"; // Import the functions
+
+
 
 interface Project {
   id: string; // Changed id to string
@@ -46,6 +45,8 @@ const ProjectDashboard = () => {
    const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [projectData, setProjectData] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
    const fetchProjects = async () => {
     setLoading(true);
     setError(null);
@@ -81,7 +82,26 @@ const ProjectDashboard = () => {
     // Save projects to local storage whenever projects state changes
     localStorage.setItem('projects', JSON.stringify(projects));
   }, [projects]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const projectData = await getProjectData();
+        const userData = await getUserData();
+        setProjectData(projectData);
+        setUserData(userData);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unexpected error occurred");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, []);
   const handleCreateProject = () => {
     router.push("/new-project");
   };
@@ -119,6 +139,36 @@ const ProjectDashboard = () => {
             Create New Project
           </Button>
         </div>
+        {loading && <p>Loading data...</p>}
+        {error && <p>Error: {error}</p>}
+        {projectData && (
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Project Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                <strong>Project Name:</strong> {projectData.project_name}
+              </p>
+              <p>
+                <strong>Description:</strong> {projectData.description}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {userData && (
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>User Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                <strong>Username:</strong> {userData.username}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {loading && (
           <div className="flex justify-center">
