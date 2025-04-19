@@ -10,7 +10,7 @@ import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { SidebarLayout } from '@/components/sidebar-layout'
+import SidebarLayout from '@/components/sidebar-layout'
 
 const ProjectDataPage = () => {
   const router = useRouter();
