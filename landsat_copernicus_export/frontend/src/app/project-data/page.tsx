@@ -117,9 +117,10 @@ const ProjectDataPage = () => {
   };
 
   return (
-    <SidebarLayout>
+    <div>
+    <SidebarLayout>      
       <div className="container mx-auto py-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Satellite Map with ROI Selection */}
+              {/* Satellite Map with ROI Selection */}
         <Card>
           <CardHeader>
             <CardTitle>Satellite Map</CardTitle>
@@ -146,7 +147,7 @@ const ProjectDataPage = () => {
                   <ImageSelector
                     imageUrl={satelliteImage}
                     onSelectionComplete={handleROISelection}
-                    projectId={projectId}
+                    projectId={projectId}              
               />
             {isProcessing && (
               <div className="mt-4 text-center text-muted-foreground">
@@ -185,7 +186,8 @@ const ProjectDataPage = () => {
           </Button>
         </div>
       </div>
-    </SidebarLayout>
+    </SidebarLayout>    
+    </div>
   );
 };
 
