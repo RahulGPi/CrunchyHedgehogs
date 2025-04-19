@@ -27,7 +27,6 @@ const ProjectDataPage = () => {
   const [satelliteImage, setSatelliteImage] = useState("/Anisha_Landsat_Image.png");
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [analysisPoint, setAnalysisPoint] = useState<[number, number] | null>(null);
 
 
   useEffect(() => {
@@ -44,6 +43,7 @@ const ProjectDataPage = () => {
   useEffect(() => {
     const fetchImage = async () => {
       try {
+        setLoading(true)
         const response = await fetch(`http://localhost:5000/api/get_latest_image/${projectId}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch image: ${response.statusText}`);
@@ -51,12 +51,12 @@ const ProjectDataPage = () => {
         const data = await response.json();
         setSatelliteImage(`/${projectId}_Landsat_Image.png`);
       } catch (err) {
+        console.log("Error:",err);
         if (err instanceof Error) {
           setError(err.message);
         } else {
           setError("An unexpected error occurred");
         }
-      } finally {
         setLoading(false);
       }
     };
@@ -82,15 +82,6 @@ const ProjectDataPage = () => {
   const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
-
-      // Analysis
-      const analysisResponse = await fetch("http://localhost:5000/api/analyze_image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          project_name: projectId,
         }),
       });
       if (!analysisResponse.ok) throw new Error("Analysis failed");
@@ -109,8 +100,10 @@ const ProjectDataPage = () => {
           analysis_point: analysisData.coordinates,
         }),
       });
+
       if (!roiResponse.ok) throw new Error("ROI processing failed");
       const roiData = await roiResponse.json();
+
       setProcessedImage(roiData.image_path);
     } catch (error) {
       console.error("Error processing ROI:", error);
@@ -133,22 +126,29 @@ const ProjectDataPage = () => {
             <CardTitle>Satellite Map</CardTitle>
           </CardHeader>
           <CardContent>
-            {processedImage ? (
-              <div className="relative w-full h-[300px]">
+              <div className="relative w-full h-[300px] flex justify-center items-center">
+                {loading && !processedImage && <Skeleton className="w-full h-full" />}
+                 {processedImage ? (
                 <Image
                   src={processedImage}
                   alt="Processed Satellite Map"
                   fill
-                  className="object-contain"
+                  className="object-contain object-center"
                 />
-              </div>
+                ) :
+                 (
+                  <Image
+                    src={satelliteImage}
+                    alt="Satellite Image"
+                    fill
+                    className="object-contain object-center"
+                  />
                 ) : (
                   <ImageSelector
                     imageUrl={satelliteImage}
                     onSelectionComplete={handleROISelection}
                     projectId={projectId}
               />
-            )}
             {isProcessing && (
               <div className="mt-4 text-center text-muted-foreground">
                 Processing ROI and analysis...
@@ -168,22 +168,6 @@ const ProjectDataPage = () => {
               className="min-h-[200px] bg-muted"
             />
           </CardContent>
-        </Card>
-
-        {/* Analysis Results */}
-        {analysisPoint && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Recommended Location</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p>AI Recommended Coordinates:</p>
-                <p className="font-mono bg-muted p-2 rounded">
-                  ({analysisPoint[0]}, {analysisPoint[1]})
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  This location was selected based on optimal conditions for your project.
                 </p>
               </div>
             </CardContent>
