@@ -42,7 +42,7 @@ COPERNICUS_SETTINGS = {
 DRIVE_SETTINGS = {
     'token_file': 'token.json',
     'download_dir': 'downloaded_images',
-    'landsat_dir': 'landsat_images',       # NEW: Landsat subfolder
+    'landsat_dir': 'D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\frontend\\public',       # NEW: Landsat subfolder
     'copernicus_dir': 'copernicus_images', # NEW: Copernicus subfolder
     'wait_timeout': 600,
     'poll_interval': 10,
