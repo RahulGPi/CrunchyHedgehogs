@@ -10,7 +10,7 @@ import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import SidebarLayout from '@/components/sidebar-layout'
+import { SidebarLayout } from '@/components/sidebar-layout'
 
 const ProjectDataPage = () => {
   const router = useRouter();
@@ -38,6 +38,8 @@ const ProjectDataPage = () => {
         setProjectName(project.name);
       }
     }
+    setLoading(false)
+    
   }, [projectId]);
 
   useEffect(() => {
@@ -82,6 +84,7 @@ const ProjectDataPage = () => {
   const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
+      const analysisResponse = await fetch("http://localhost:5000/api/get_analysis_point");
         
        
       const analysisData = await analysisResponse.json();
@@ -117,7 +120,7 @@ const ProjectDataPage = () => {
   };
 
   return (
-    <SidebarLayout>
+    <SidebarLayout >
       <div className="container mx-auto py-10 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Satellite Map with ROI Selection */}
         <Card>
