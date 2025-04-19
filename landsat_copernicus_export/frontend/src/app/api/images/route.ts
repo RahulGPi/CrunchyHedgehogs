@@ -23,7 +23,7 @@ export async function GET() {
                 .map(file => file.split('/').pop())
                 .filter(fileName => fileName !== undefined) as string[];
 
-            return NextResponse.json({ images: imageFiles });
+            return new NextResponse(JSON.stringify({ images: imageFiles }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         } else {
             return NextResponse.json({ error: 'Failed to list project files' }, { status: 500 });
         }
