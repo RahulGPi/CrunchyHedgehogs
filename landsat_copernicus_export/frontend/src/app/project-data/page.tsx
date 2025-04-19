@@ -117,8 +117,7 @@ const ProjectDataPage = () => {
   };
 
   return (
-    <div>
-    <SidebarLayout>      
+    <SidebarLayout>
       <div className="container mx-auto py-10 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Satellite Map with ROI Selection */}
         <Card>
@@ -142,7 +141,7 @@ const ProjectDataPage = () => {
                     alt="Satellite Image"
                     fill
                     className="object-contain object-center"
-                  />
+                  />)
                 ) : (
                   <ImageSelector
                     imageUrl={satelliteImage}
@@ -185,9 +184,8 @@ const ProjectDataPage = () => {
             Save Project
           </Button>
         </div>
-      </div>
-    </SidebarLayout>    
-    </div>
+      </div>  
+    </SidebarLayout>
   );
 };
 
