@@ -25,7 +25,7 @@ const ProjectDataPage = () => {
     const [constructionGoals, setConstructionGoals] = useState(localStorage.getItem("constructionGoals") || "");
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 37.7749, lng: -122.4194 }); // Default: San Francisco
+    const [mapCenter] = useState<{ lat: number; lng: number }>({ lat: 0, lng: 0 });
     const [mapZoom, setMapZoom] = useState(10);
 
   const [imageOptions, setImageOptions] = useState<{ value: string; label: string; }[]>([]);
@@ -61,8 +61,8 @@ const ProjectDataPage = () => {
                     project_name: projectId,
                     image_name: selectedImage,
                     bounds: {
-                        north_east: { lat: bounds.northEast.lat, lng: bounds.northEast.lng },
-                        south_west: { lat: bounds.southWest.lat, lng: bounds.southWest.lng },
+                        north_east: { x: bounds.northEast.x, y: bounds.northEast.y },
+                        south_west: { x: bounds.southWest.x, y: bounds.southWest.y },
                     },
                     construction_goals: constructionGoals,
                 }),
