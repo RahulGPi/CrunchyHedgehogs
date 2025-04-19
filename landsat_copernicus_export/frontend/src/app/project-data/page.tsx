@@ -163,9 +163,8 @@ const ProjectDataPage = () => {
             <CardTitle>Construction Goals</CardTitle>
           </CardHeader>
           <CardContent>
-            <Textarea
-              value={constructionGoals || ""}
-              readOnly
+            <Input
+              value={constructionGoals || ""}              
               className="min-h-[200px] bg-muted"
             />
           </CardContent>

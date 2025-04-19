@@ -121,29 +121,7 @@ def download_image(project_name, image_type):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# Add these new endpoints to your existing app.py
-
-@app.route('/api/analyze_image', methods=['POST'])
-def analyze_image():
-    try:
-        data = request.json
-        project_name = data.get('project_name')
         
-        if not project_name:
-            return jsonify({'error': 'Project name required'}), 400
-        
-        # Run Gemini analysis
-        result = algorithm(project_name)
-        
-        return jsonify({
-            'coordinates': result,
-            'message': 'Analysis complete'
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 @app.route('/api/process_roi', methods=['POST'])
 def process_roi():
     try:
@@ -151,27 +129,24 @@ def process_roi():
         project_name = data.get('project_name')
         points = data.get('points')  # List of (x,y) tuples
         
-        if not project_name or not points or len(points) != 4:
+        if not project_name or not points:
             return jsonify({'error': 'Invalid request data'}), 400
-        
+
+        analysis_point = data.get('analysis_point', [0, 0]) 
         converter = ImageConverter()
-        
-        # Process ROI and highlight points
-        image_path = converter.roi_definer(points, project_name)
-        highlighted_path = converter.highlight_point_if_inside_polygon(
-            image_path, 
-            points, 
-            data.get('analysis_point'), 
-            project_name
-        )
-        
-        return jsonify({
-            'image_path': highlighted_path,
-            'message': 'ROI processing complete'
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        try:
+            # Process ROI and highlight points
+            image_path = converter.roi_definer(points, project_name)
+            highlighted_path = converter.highlight_point_if_inside_polygon(
+                image_path, points, analysis_point, project_name
+            )
+            return jsonify({
+                'image_path': highlighted_path,
+                'message': 'ROI processing complete'
+            }), 200
+        except Exception as e:
+            return jsonify({'error': f"Image processing error: {str(e)}"}), 500
+
 
 @app.route('/api/get_latest_image/<project_name>', methods=['GET'])
 def get_latest_image(project_name):
@@ -203,6 +178,27 @@ def get_latest_image(project_name):
    except Exception as e:
        # If any error occurs, return a JSON response with an error message and a 500 status code.
        return jsonify({'error': str(e)}), 500
+
+# Add these new endpoints to your existing app.py
+
+@app.route('/api/analyze_image', methods=['POST'])
+def analyze_image():
+    try:
+        data = request.json
+        project_name = data.get('project_name')
+        
+        if not project_name:
+            return jsonify({'error': 'Project name required'}), 400
+        
+        try:
+            # Run Gemini analysis
+            result = algorithm(project_name)
+            return jsonify({
+                'coordinates': result,
+                'message': 'Analysis complete'
+            }), 200
+        except Exception as e:
+            return jsonify({'error': f"Algorithm error: {str(e)}"}), 500
 
 @app.route('/api/get_project_data', methods=['GET'])
 def get_project_data():

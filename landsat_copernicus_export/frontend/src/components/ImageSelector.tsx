@@ -38,17 +38,13 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
 
     // Draw current selection
     if (points.length > 0) {
-      ctx.strokeStyle = '#FF0000';
+      ctx.strokeStyle = '#0000FF'; // Blue color
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
       
       for (let i = 1; i < points.length; i++) {
         ctx.lineTo(points[i].x, points[i].y);
-      }
-      
-      if (points.length === 4) {
-        ctx.closePath();
       }
       ctx.stroke();
     }
@@ -64,67 +60,18 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    setPoints([...points, { x, y }]);
+    // Add a margin of error (adjust as needed)
+    const margin = 5;
+    if (x >= -margin && x <= canvas.width + margin && y >= -margin && y <= canvas.height + margin) {
+      setPoints([...points, { x, y }]);
+
+      // Draw a blue circle at the selected point
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#0000FF'; // Blue color
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, 2 * Math.PI); // Circle with radius 3
+        ctx.fill();
+      }
+    }
   };
-
-  const resetSelection = () => {
-    setPoints([]);
-  };
-
-  const confirmSelection = () => {
-    if (points.length === 4) {
-      onSelectionComplete(points, projectId); // Pass projectId here
-    } 
-  };
-
-  return (
-    <div className="relative">
-      <img
-        ref={imageRef}
-        src={imageUrl}
-        alt="Satellite"
-        className="hidden"
-        onLoad={() => {
-          const canvas = canvasRef.current;
-          const image = imageRef.current;
-          if (canvas && image) {
-            canvas.width = image.width;
-            canvas.height = image.height;
-          }
-        }}
-      />
-      
-      <canvas
-        ref={canvasRef}
-        onClick={handleCanvasClick}
-        className="border rounded-md w-full h-auto max-h-[500px]"
-      />
-      
-      <div className="mt-4 flex gap-2">
-        <Button 
-          onClick={resetSelection}
-          variant="outline"
-          disabled={points.length === 0}
-        >
-          Reset
-        </Button>
-        <Button 
-          onClick={confirmSelection}
-          disabled={points.length !== 4}
-        >
-          Confirm Selection
-        </Button>
-      </div>
-      
-      {points.length > 0 && (
-        <div className="mt-2">
-          <p className="text-sm text-muted-foreground">
-            Selected points: {points.map(p => `(${Math.round(p.x)},${Math.round(p.y)})`).join(', ')}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default ImageSelector;
