@@ -10,7 +10,7 @@ import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import SidebarLayout from '@/components/sidebar-layout'
+import SidebarLayout from '@/components/sidebar-layout';
 
 const ProjectDataPage = () => {
   const router = useRouter();
@@ -27,7 +27,7 @@ const ProjectDataPage = () => {
   const [satelliteImage, setSatelliteImage] = useState("/Anisha_Landsat_Image.png");
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
+  const [analysisPoint, setAnalysisPoint] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     const storedProjects = localStorage.getItem('projects');
@@ -39,7 +39,6 @@ const ProjectDataPage = () => {
       }
     }
     setLoading(false)
-    
   }, [projectId]);
 
   useEffect(() => {
@@ -71,7 +70,6 @@ const ProjectDataPage = () => {
     }
   }, [projectId]);
 
-
   if (loading) {
     return <Skeleton className="w-[100px] h-[20px]" />;
   }
@@ -80,13 +78,11 @@ const ProjectDataPage = () => {
     return <div className="text-red-500">Error: {error}</div>;
   }
 
-
   const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
       const analysisResponse = await fetch("http://localhost:5000/api/get_analysis_point");
         
-       
       const analysisData = await analysisResponse.json();
       setAnalysisPoint(analysisData.coordinates);
 
@@ -120,43 +116,42 @@ const ProjectDataPage = () => {
   };
 
   return (
-    <SidebarLayout >
+    <SidebarLayout>
       <div className="container mx-auto py-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Satellite Map with ROI Selection */}
+        {/* Satellite Map with ROI Selection */}
         <Card>
           <CardHeader>
             <CardTitle>Satellite Map</CardTitle>
           </CardHeader>
           <CardContent>
-              <div className="relative w-full h-[300px] flex justify-center items-center">
-                {loading && !processedImage && <Skeleton className="w-full h-full" />}
-                 {processedImage ? (
+            <div className="relative w-full h-[300px] flex justify-center items-center">
+              {loading && !processedImage && <Skeleton className="w-full h-full" />}
+              {processedImage ? (
                 <Image
                   src={processedImage}
                   alt="Processed Satellite Map"
                   fill
                   className="object-contain object-center"
                 />
-                ) :
-                 (
-                  <Image
-                    src={satelliteImage}
-                    alt="Satellite Image"
-                    fill
-                    className="object-contain object-center"
-                  />
-                )
-                }
-                  <ImageSelector
-                    imageUrl={satelliteImage}
-                    onSelectionComplete={handleROISelection}
-                    projectId={projectId}
+              ) : (
+                <Image
+                  src={satelliteImage}
+                  alt="Satellite Image"
+                  fill
+                  className="object-contain object-center"
+                />
+              )}
+              <ImageSelector
+                imageUrl={satelliteImage}
+                onSelectionComplete={handleROISelection}
+                projectId={projectId}
               />
-            {isProcessing && (
-              <div className="mt-4 text-center text-muted-foreground">
-                Processing ROI and analysis...
-              </div>
-            )}
+              {isProcessing && (
+                <div className="mt-4 text-center text-muted-foreground">
+                  Processing ROI and analysis...
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -171,13 +166,7 @@ const ProjectDataPage = () => {
               className="min-h-[200px] bg-muted"
             />
           </CardContent>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Rest of your existing cards... */}
+        </Card>
 
         {/* Save Button */}
         <div className="md:col-span-2 flex justify-end">
