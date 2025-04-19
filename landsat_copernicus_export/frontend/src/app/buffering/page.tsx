@@ -7,7 +7,7 @@ import SidebarLayout from "@/components/sidebar-layout";
 const BufferingPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectName = searchParams.get("projectName");
+  const projectName = searchParams.get('projectName') || '';
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

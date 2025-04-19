@@ -162,10 +162,10 @@ class ImageConverter:
             
             # 5. Blend the overlay with the original image
             image = Image.alpha_composite(image, overlay)
-            output_path = f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png"
+            output_path = f"landsat_copernicus_export//frontend//public"
     # 6. Save as PNG (to preserve transparency)
             image.save(output_path)
-            print(f"Result saved to: {output_path}")
+            return output_path
 
 if __name__ == "__main__":
     a = ImageConverter

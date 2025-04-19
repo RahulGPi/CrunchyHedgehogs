@@ -11,6 +11,7 @@ import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 
+
 const ProjectDataPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -20,13 +21,14 @@ const ProjectDataPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const projectId = searchParams.get('projectId') || ''; // Provide a default value
-  const constructionGoals = searchParams.get('constructionGoals') || ''; // Provide a default value
+  const constructionGoals = searchParams.get('constructionGoals') || '';
   
   const [projectName, setProjectName] = useState('');
   const [satelliteImage, setSatelliteImage] = useState("/Anisha_Landsat_Image.png");
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisPoint, setAnalysisPoint] = useState<[number, number] | null>(null);
+
 
   useEffect(() => {
     const storedProjects = localStorage.getItem('projects');
@@ -35,60 +37,88 @@ const ProjectDataPage = () => {
       const project = projects.find((p: { id: string | null }) => p.id === projectId);
       if (project) {
         setProjectName(project.name);
-        // Load the actual image path from project data if available
-        if (project.satelliteImageUrl) {
-          setSatelliteImage(project.satelliteImageUrl);
-        }
       }
     }
-    setLoading(false);
-  }, [projectId, searchParams]);
+  }, [projectId]);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/get_latest_image/${projectId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.latest_image) {
+          setSatelliteImage(`/landsat_images/${data.latest_image}`);
+        } else {
+          setError("No image found for this project.");
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unexpected error occurred");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (projectId) {
+      fetchImage();
+    } else {
+      setLoading(false);
+      setError("Project ID not found.");
+    }
+  }, [projectId]);
+
 
   if (loading) {
     return <Skeleton className="w-[100px] h-[20px]" />;
   }
 
-  const handleROISelection = async (points: {x: number, y: number}[]) => {
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
+
+  const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
-      
-      // First run the analysis to get the recommended point
-      const analysisRes = await fetch('http://localhost:5000/api/analyze_image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_name: projectId
-        })
-      });
 
-      if (!analysisRes.ok) throw new Error('Analysis failed');
-      
-      const analysisData = await analysisRes.json();
-      setAnalysisPoint(analysisData.coordinates);
-
-      // Then process the ROI with the selected points
-      const roiRes = await fetch('http://localhost:5000/api/process_roi', {
-        method: 'POST',
+      // Analysis
+      const analysisResponse = await fetch("http://localhost:5000/api/analyze_image", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           project_name: projectId,
-          points: points.map(p => [p.x, p.y]),
-          analysis_point: analysisData.coordinates
-        })
+        }),
       });
+      if (!analysisResponse.ok) throw new Error("Analysis failed");
+      const analysisData = await analysisResponse.json();
+      setAnalysisPoint(analysisData.coordinates);
 
-      if (!roiRes.ok) throw new Error('ROI processing failed');
-      
-      const roiData = await roiRes.json();
+      // Process ROI
+      const roiResponse = await fetch("http://localhost:5000/api/process_roi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          project_name: projectId,
+          points: points.map((p) => [p.x, p.y]),
+          analysis_point: analysisData.coordinates,
+        }),
+      });
+      if (!roiResponse.ok) throw new Error("ROI processing failed");
+      const roiData = await roiResponse.json();
       setProcessedImage(roiData.image_path);
-      
     } catch (error) {
-      console.error('Error processing ROI:', error);
-      alert('Failed to process ROI. Please try again.');
+      console.error("Error processing ROI:", error);
+      alert("Failed to process ROI. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -116,10 +146,11 @@ const ProjectDataPage = () => {
                   className="object-contain"
                 />
               </div>
-            ) : (
-              <ImageSelector 
-                imageUrl={satelliteImage}
-                onSelectionComplete={handleROISelection}
+                ) : (
+                  <ImageSelector
+                    imageUrl={satelliteImage}
+                    onSelectionComplete={handleROISelection}
+                    projectId={projectId}
               />
             )}
             {isProcessing && (

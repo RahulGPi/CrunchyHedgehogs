@@ -11,9 +11,10 @@ interface Point {
 interface ImageSelectorProps {
   imageUrl: string;
   onSelectionComplete: (points: Point[]) => void;
+  projectId: string;
 }
 
-const ImageSelector = ({ imageUrl, onSelectionComplete }: ImageSelectorProps) => {
+const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelectorProps) => {
   const [points, setPoints] = useState<Point[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -70,10 +71,10 @@ const ImageSelector = ({ imageUrl, onSelectionComplete }: ImageSelectorProps) =>
     setPoints([]);
   };
 
-  const completeSelection = () => {
+  const confirmSelection = () => {
     if (points.length === 4) {
-      onSelectionComplete(points);
-    }
+      onSelectionComplete(points, projectId); // Pass projectId here
+    } 
   };
 
   return (
@@ -108,7 +109,7 @@ const ImageSelector = ({ imageUrl, onSelectionComplete }: ImageSelectorProps) =>
           Reset
         </Button>
         <Button 
-          onClick={completeSelection}
+          onClick={confirmSelection}
           disabled={points.length !== 4}
         >
           Confirm Selection
