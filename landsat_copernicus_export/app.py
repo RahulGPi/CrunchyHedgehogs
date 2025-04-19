@@ -146,6 +146,8 @@ def process_roi():
             }), 200
         except Exception as e:
             return jsonify({'error': f"Image processing error: {str(e)}"}), 500
+    except Exception as e:
+        jsonify({'error': f"Algorithm error: {str(e)}"}), 500
 
 # Add these new endpoints to your existing app.py
 
@@ -199,6 +201,8 @@ def analyze_image():
             }), 200
         except Exception as e:
             return jsonify({'error': f"Algorithm error: {str(e)}"}), 500
+    except Exception as e:
+        jsonify({'error': f"Algorithm error: {str(e)}"}), 500
 
 @app.route('/api/get_project_data', methods=['GET'])
 def get_project_data():
