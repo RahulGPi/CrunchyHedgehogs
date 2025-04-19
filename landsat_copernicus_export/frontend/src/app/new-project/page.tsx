@@ -60,7 +60,11 @@ export default function NewProjectPage() {
         throw new Error("Failed to save project");
       }
 
-      router.push("/dashboard");
+      const { projectname, latitude: lat, longitude: lng } = await response.json();
+
+      router.push(
+        `/project-details?projectName=${projectname}&latitude=${lat}&longitude=${lng}`
+      );
     } catch (err: any) {
       const errorMessage = err.message || "An error occurred while saving the project.";
       setError(errorMessage);
