@@ -124,7 +124,7 @@ def download_image(project_name, image_type):
         
 # New route to process ROI
 @app.route('/api/process_roi', methods=['POST'])
-def process_roi():
+def process_roi_route():  # Changed from process_roi to process_roi_route
     try:
         data = request.json
         project_name = data['project_name']
@@ -133,6 +133,7 @@ def process_roi():
         if not project_name or not points:
             return jsonify({'error': 'Invalid request data'}), 400
 
+        # Call the process_roi function from roi_utils
         image_path = process_roi(points, project_name)
         return jsonify({'image_path': image_path})
     except Exception as e:

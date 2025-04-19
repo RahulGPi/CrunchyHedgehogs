@@ -60,24 +60,24 @@ const ProjectDataPage = () => {
 
   const hasImage = satelliteImage !== "";
 
-  useEffect(() => {
-    // This empty effect can be removed if not needed
-  }, [pathname, satelliteImage]);
-
   const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
+      if (points.length < 3) {
+        throw new Error("Please select at least 3 points to define an ROI");
+      }
+
       setIsProcessing(true);
-      console.log("Processing ROI with points:", points);
       
-      // Convert points to relative coordinates (0-1 range)
+      // Get canvas dimensions for coordinate normalization
       const canvas = document.querySelector('canvas');
-      if (!canvas) throw new Error("Canvas not found");
+      if (!canvas) throw new Error("Canvas element not found");
       
+      // Normalize coordinates to 0-1 range
       const normalizedPoints = points.map(p => ({
         x: p.x / canvas.width,
         y: p.y / canvas.height
       }));
-  
+
       const response = await fetch("http://localhost:5000/api/process_roi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,16 +86,16 @@ const ProjectDataPage = () => {
           points: normalizedPoints,
         }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "ROI processing failed");
       }
       
       const data = await response.json();
-      console.log("Processed image path:", data.image_path);
+      console.log("Processed image:", data.image_path);
       
-      // Update the processed image path
+      // Update state with the processed image path
       setProcessedImage(data.image_path);
       
     } catch (error) {
@@ -104,6 +104,11 @@ const ProjectDataPage = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleResetSelection = () => {
+    setProcessedImage(null);
+    setError(null);
   };
 
   if (loading) {
@@ -122,6 +127,13 @@ const ProjectDataPage = () => {
         <div className="flex items-center justify-center h-screen">
           <div className="text-red-500 p-4 border rounded-lg bg-background">
             Error: {error}
+            <Button 
+              onClick={() => setError(null)} 
+              className="mt-2"
+              variant="outline"
+            >
+              Try Again
+            </Button>
           </div>
         </div>
       </SidebarLayout>
@@ -141,28 +153,40 @@ const ProjectDataPage = () => {
               {hasImage ? (
                 <>
                   {processedImage ? (
-                    <Image
-                      src={processedImage}
-                      alt="Processed Satellite Map"
-                      fill
-                      className="object-contain"
-                      priority
-                    />
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={processedImage}
+                        alt="Processed ROI"
+                        fill
+                        className="object-contain"
+                        priority
+                        onError={() => setError("Failed to load processed image")}
+                      />
+                      <Button 
+                        onClick={handleResetSelection}
+                        className="absolute top-2 right-2 z-10"
+                        variant="outline"
+                        size="sm"
+                      >
+                        Reset Selection
+                      </Button>
+                    </div>
                   ) : (
-                    <>
+                    <div className="relative w-full h-full">
                       <Image
                         src={satelliteImage}
                         alt="Satellite Image"
                         fill
                         className="object-contain"
                         priority
+                        onError={() => setError("Failed to load satellite image")}
                       />
                       <ImageSelector
                         imageUrl={satelliteImage}
                         onSelectionComplete={handleROISelection}
                         projectId={projectId}
                       />
-                    </>
+                    </div>
                   )}
                 </>
               ) : (
@@ -173,7 +197,10 @@ const ProjectDataPage = () => {
               
               {isProcessing && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <div className="text-white">Processing ROI...</div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+                    <div className="text-white">Processing ROI...</div>
+                  </div>
                 </div>
               )}
             </div>
@@ -195,7 +222,16 @@ const ProjectDataPage = () => {
         </Card>
 
         {/* Save Button */}
-        <div className="md:col-span-2 flex justify-end">
+        <div className="md:col-span-2 flex justify-end gap-4">
+          {processedImage && (
+            <Button 
+              onClick={handleResetSelection}
+              variant="outline"
+              className="px-8 py-4"
+            >
+              Clear ROI
+            </Button>
+          )}
           <Button 
             onClick={() => router.push("/dashboard")}
             className="bg-primary text-primary-foreground hover:bg-primary/80 px-8 py-4"
