@@ -2,31 +2,33 @@ import { NextResponse } from 'next/server';
 import { list_project_files } from 'api/default';
 
 export async function GET() {
-  try {
-    const response = await list_project_files({ path: 'landsat_copernicus_export/frontend/public' });
+    try {
+        const response = await list_project_files({ path: 'landsat_copernicus_export/frontend/public' });
 
-    if (response.status === 'succeeded') {
-        // Ensure response.result is a string before parsing
-        const files = typeof response.result === 'string' ? JSON.parse(response.result) : [];
+        if (response.status === 'succeeded' && response.result) {
+            const files = JSON.parse(response.result) as string[];
 
-        const imageFiles = files
-            .filter((file: string) => {
-                const lowerCaseFile = file.toLowerCase();
-                return (
-                    lowerCaseFile.endsWith('.png') ||
-                    lowerCaseFile.endsWith('.jpg') ||
-                    lowerCaseFile.endsWith('.jpeg') ||
-                    lowerCaseFile.endsWith('.gif') ||
-                    lowerCaseFile.endsWith('.bmp')
-                );
-            }).map((file: string) => file.split('/').pop() as string);
+            // Extract image files and handle potential undefined values
+            const imageFiles = files
+                .filter(file => {
+                    const lowerCaseFile = file.toLowerCase();
+                    return (
+                        lowerCaseFile.endsWith('.png') ||
+                        lowerCaseFile.endsWith('.jpg') ||
+                        lowerCaseFile.endsWith('.jpeg') ||
+                        lowerCaseFile.endsWith('.gif') ||
+                        lowerCaseFile.endsWith('.bmp')
+                    );
+                })
+                .map(file => file.split('/').pop())
+                .filter(fileName => fileName !== undefined) as string[];
 
-        return NextResponse.json({ images: imageFiles });
-    } else {
-        return NextResponse.json({ error: 'Failed to list project files' }, { status: 500 });
-    }
-  } catch (error) {
+            return NextResponse.json({ images: imageFiles });
+        } else {
+            return NextResponse.json({ error: 'Failed to list project files' }, { status: 500 });
+        }
+    } catch (error) {
         console.error('Error fetching image list:', error);
         return NextResponse.json({ error: 'Failed to fetch image list' }, { status: 500 });
-  }
+    }
 }
