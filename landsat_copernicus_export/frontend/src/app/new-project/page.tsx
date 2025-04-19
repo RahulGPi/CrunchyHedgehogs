@@ -46,7 +46,7 @@ export default function NewProjectPage() {
         Number(trimmedLatitude),
         Number(trimmedLongitude)
       );
-      const response = await fetch("/api/save-project", {
+      const response = await fetch("http://localhost:5000/api/save-project", {
         method: "POST",
         body: JSON.stringify({
           projectName,
