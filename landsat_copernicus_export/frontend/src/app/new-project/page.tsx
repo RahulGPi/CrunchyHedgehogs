@@ -58,8 +58,8 @@ const NewProjectForm = () => {
       const data = await response.json();
       console.log('Processing started:', data);
       
-      // Redirect to results page
-      router.push(`/satellite-image?projectId=${projectId}`);
+      // Redirect to buffering page
+      router.push(`/buffering?projectName=${projectId}`);
       
     } catch (error) {
       console.error('Error starting processing:', error);
@@ -121,7 +121,7 @@ const NewProjectForm = () => {
             disabled={location.coordinates.lat === 0 && location.coordinates.lng === 0 || isProcessing}
             className="bg-primary text-primary-foreground hover:bg-primary/80 w-fit"
           >
-            {isProcessing ? "Processing..." : "Create Project"}
+            Create Project
           </Button>
         </div>
       </div>

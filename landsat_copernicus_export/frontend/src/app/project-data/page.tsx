@@ -9,13 +9,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectDataPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
-  const constructionGoals = searchParams.get('constructionGoals');
-  const [projectName, setProjectName] = useState("");
+  
+  //Loading state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const projectId = searchParams.get('projectId') || ''; // Provide a default value
+  const constructionGoals = searchParams.get('constructionGoals') || ''; // Provide a default value
+  
+  const [projectName, setProjectName] = useState('');
   const [satelliteImage, setSatelliteImage] = useState("/Anisha_Landsat_Image.png");
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -34,7 +41,12 @@ const ProjectDataPage = () => {
         }
       }
     }
-  }, [projectId]);
+    setLoading(false);
+  }, [projectId, searchParams]);
+
+  if (loading) {
+    return <Skeleton className="w-[100px] h-[20px]" />;
+  }
 
   const handleROISelection = async (points: {x: number, y: number}[]) => {
     try {
