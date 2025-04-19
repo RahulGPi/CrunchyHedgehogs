@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import SidebarLayout from "@/components/sidebar-layout";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import SidebarLayout from '@/components/sidebar-layout'
 
 const ProjectDataPage = () => {
   const router = useRouter();
@@ -83,7 +83,7 @@ const ProjectDataPage = () => {
     try {
       setIsProcessing(true);
         
-      if (!analysisResponse.ok) throw new Error("Analysis failed");
+       
       const analysisData = await analysisResponse.json();
       setAnalysisPoint(analysisData.coordinates);
 
@@ -141,12 +141,13 @@ const ProjectDataPage = () => {
                     alt="Satellite Image"
                     fill
                     className="object-contain object-center"
-                  />)
-                ) : (
+                  />
+                )
+                }
                   <ImageSelector
                     imageUrl={satelliteImage}
                     onSelectionComplete={handleROISelection}
-                    projectId={projectId}              
+                    projectId={projectId}
               />
             {isProcessing && (
               <div className="mt-4 text-center text-muted-foreground">
