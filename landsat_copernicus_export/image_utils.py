@@ -1,6 +1,7 @@
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
 import rasterio
+
 # from config import DRIVE_SETTINGS
 
 class ImageConverter:
@@ -74,12 +75,101 @@ class ImageConverter:
         except Exception as e:
             print(f"An error occurred: {e}")
             
-    def resizer():
-        image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
-        output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\Copernicus_Image_1.png"
-        ImageConverter.resize_image(image_path, output_path, 600,600)
+    def resizer(project_name):
+        image_path = f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\copernicus_images\\{project_name}_Copernicus_Image.png"
+        
+        ImageConverter.resize_image(image_path, image_path, 600,600)
         #landsat resize
-        image_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
-        output_path = "D:\\GlobalStoragePro\\CH-2\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\Landsat_Image_1.png"
-        ImageConverter.resize_image(image_path, output_path, 600,600)
+        image_path = f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png"
+        
+        ImageConverter.resize_image(image_path, image_path, 600,600)
 
+    def roi_definer(points, project_name):
+        # 1. Load the image
+        image = Image.open(f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png").convert("RGBA")  # Replace with your image path
+        # image = Image.open("your_image.jpg").convert("RGBA")
+        width, height = image.size
+
+        # 2. Define the four points of the polygon (in order)
+        pts = points
+
+        # 3. Create a semi-transparent blue overlay
+        overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))  # Transparent
+        draw = ImageDraw.Draw(overlay)
+        draw.polygon(pts, fill=(100, 200, 255, 128))  # Light blue with 50% opacity (alpha=128)
+
+        # 4. Blend the overlay with the original image
+        highlighted_image = Image.alpha_composite(image, overlay)
+        img_file = f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png"
+        # 5. Save/display the result (convert back to RGB if saving as JPEG)
+        # highlighted_image.show()
+        highlighted_image.convert("RGB").save(img_file)
+        return img_file  # JPEG doesn't support transparency  # Save as PNG (supports transparency)
+
+    def highlight_point_if_inside_polygon(image_path, polygon_points, test_point, project_name):
+        """
+        Highlights a test point in red if it lies inside a polygon defined by the given points.
+        
+        Args:
+            image_path (str): Path to the input image.
+            polygon_points (list): List of (x, y) tuples defining the polygon.
+            test_point (tuple): (x, y) point to check.
+            output_path (str): Path to save the output image.
+        """
+        # 1. Load the image
+        image = Image.open(image_path).convert("RGBA")
+        width, height = image.size
+        
+        # 2. Check if the test point is inside the polygon
+        def is_point_in_polygon(point, polygon):
+            """
+            Ray-casting algorithm to determine if a point is inside a polygon.
+            Source: https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+            """
+            x, y = point
+            n = len(polygon)
+            inside = False
+            p1x, p1y = polygon[0]
+            for i in range(n + 1):
+                p2x, p2y = polygon[i % n]
+                if y > min(p1y, p2y):
+                    if y <= max(p1y, p2y):
+                        if x <= max(p1x, p2x):
+                            if p1y != p2y:
+                                xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                            if p1x == p2x or x <= xinters:
+                                inside = not inside
+                p1x, p1y = p2x, p2y
+            return inside
+        
+        is_inside = is_point_in_polygon(test_point, polygon_points)
+        
+        # 3. Draw a red dot if the point is inside the polygon
+        draw = ImageDraw.Draw(image)
+        if is_inside:
+            # 3. Create a transparent overlay
+            overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))  # Fully transparent
+            draw = ImageDraw.Draw(overlay)
+            
+            x, y = test_point
+            radius = 10  # Half-width/height of the rectangle
+            # 4. Draw a semi-transparent red rectangle (alpha=128 for 50% opacity)
+            draw.rectangle(
+                [(x - radius, y - radius), (x + radius, y + radius)],
+                fill=(255, 0, 0, 128),  # Red with 50% opacity
+                outline=(255, 0, 0, 255)  # Non-transparent outline (optional)
+            )
+            
+            # 5. Blend the overlay with the original image
+            image = Image.alpha_composite(image, overlay)
+            output_path = f"D:\\GlobalStoragePro\\CrunchyHedgehogs\\landsat_copernicus_export\\downloaded_images\\landsat_images\\{project_name}_Landsat_Image.png"
+    # 6. Save as PNG (to preserve transparency)
+            image.save(output_path)
+            print(f"Result saved to: {output_path}")
+
+if __name__ == "__main__":
+    a = ImageConverter
+    points = [(0,500),(570,570),(570,87),(50,50)]
+    tp = (99,99)
+    x = a.roi_definer(points=points)
+    a.highlight_point_if_inside_polygon(x,points,tp)

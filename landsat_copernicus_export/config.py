@@ -52,7 +52,7 @@ DRIVE_SETTINGS = {
         'resize': None           # Optional: (width, height) or None
     }
 }
-GEMINI_MODEL = "gemini-2.5-pro-exp-03-25"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 API_KEY = "AIzaSyDHue-USShZ-R-45asfNitt3D6569RayWQ"
 
@@ -75,5 +75,6 @@ such that it takes into account for the nearby infrastructure and also having su
 not trying to destroy nature/landscape/greenery of the place
 RETURN ONLY IMAGE COORDINATES IN A TUPLE EXAMPLE "(X,Y)"
 do not return any other character other than (x,y)
+x,y <= 600
 give me image coordinates without in respect to the satellite img radius
 '''
