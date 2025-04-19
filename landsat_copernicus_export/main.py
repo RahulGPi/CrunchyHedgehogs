@@ -1,13 +1,11 @@
 import os
-from roi_utils import create_roi
+from roi_utils import create_roi, create_roi_image
 from landsat_export import process_landsat_image
 from copernicus_export import process_copernicus_image
 from drive_utils import DriveManager
 from config import COPERNICUS_SETTINGS, LANDSAT_SETTINGS , DRIVE_SETTINGS
 from image_utils import ImageConverter
-# from flask import Flask, request, jsonify
-# import os
-from gemini import algorithm
+from gemini import algorithm 
 
 def process_coordinates(coord_list, project_name):
     """
@@ -56,6 +54,9 @@ def process_coordinates(coord_list, project_name):
     copernicus_converted = ImageConverter.process_directory(
         os.path.join(DRIVE_SETTINGS['download_dir'], DRIVE_SETTINGS['copernicus_dir'])
     )
+    print(f"\nConversion complete:")
+    print(f"Landsat PNGs: {len(landsat_converted)} files")
+    print(f"Copernicus PNGs: {len(copernicus_converted)} files")
 
     print(f"\nConversion complete:")
     print(f"Landsat PNGs: {len(landsat_converted)} files")

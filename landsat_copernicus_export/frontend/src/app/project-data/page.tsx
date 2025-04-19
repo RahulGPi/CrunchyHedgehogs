@@ -1,9 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import ImageSelector from "@/components/ImageSelector";
@@ -22,6 +22,7 @@ const ProjectDataPage = () => {
   const [satelliteImage, setSatelliteImage] = useState("");
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -56,8 +57,11 @@ const ProjectDataPage = () => {
       setLoading(false);
     }
   }, [projectId]);
+  const hasImage = satelliteImage !== "";
 
-  const handleROISelection = async (points: { x: number; y: number }[]) => {
+  useEffect(() => {}, [pathname, satelliteImage])
+
+    const handleROISelection = async (points: { x: number; y: number }[]) => {
     try {
       setIsProcessing(true);
       console.log("Processing ROI with points:", points);
@@ -68,7 +72,8 @@ const ProjectDataPage = () => {
         body: JSON.stringify({
           project_name: projectId,
           points: points.map((p) => [p.x, p.y]),
-        }),
+        }
+        ),
       });
 
       if (!response.ok) throw new Error("ROI processing failed");
@@ -117,27 +122,29 @@ const ProjectDataPage = () => {
           </CardHeader>
           <CardContent>
             <div className="relative w-full h-[300px] flex justify-center items-center bg-gray-100 rounded-lg">
-              {processedImage ? (
-                <Image
-                  src={processedImage}
-                  alt="Processed Satellite Map"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              ) : satelliteImage ? (
-                <>
+              {hasImage && (
+                  processedImage ? (
+                    <Image
+                      src={processedImage}
+                      alt="Processed Satellite Map"
+                      fill
+                      className="object-contain"
+                      priority
+                    />
+                  ) : (
+                    <>
                   <Image
                     src={satelliteImage}
                     alt="Satellite Image"
                     fill
                     className="object-contain"
                     priority
-                    onError={(e) => {
-                      console.error("Image load error:", e);
-                      setError("Failed to load satellite image");
-                    }}
+                 
                   />
+                 
+                 
+                  
+                  
                   <ImageSelector
                     imageUrl={satelliteImage}
                     onSelectionComplete={handleROISelection}
@@ -145,7 +152,9 @@ const ProjectDataPage = () => {
                   />
                 </>
               ) : (
-                <div className="text-muted-foreground">No image available</div>
+                <div className="text-muted-foreground">
+                  No image available
+                </div>
               )}
               
               {isProcessing && (
@@ -175,7 +184,7 @@ const ProjectDataPage = () => {
         <div className="md:col-span-2 flex justify-end">
           <Button 
             onClick={() => router.push("/dashboard")}
-            className="px-8 py-4"
+            className="bg-primary text-primary-foreground hover:bg-primary/80 px-8 py-4"
           >
             Save Project
           </Button>

@@ -6,7 +6,7 @@ import threading
 # from werkzeug.utils import secure_filename
 from config import EE_PROJECT, LANDSAT_SETTINGS, COPERNICUS_SETTINGS, DRIVE_SETTINGS
 from roi_utils import create_roi
-from main import process_coordinates
+from main import process_coordinates, create_roi_image
 from landsat_export import process_landsat_image
 from copernicus_export import process_copernicus_image
 from drive_utils import DriveManager
@@ -122,32 +122,21 @@ def download_image(project_name, image_type):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
         
+# New route to process ROI
 @app.route('/api/process_roi', methods=['POST'])
 def process_roi():
     try:
         data = request.json
-        project_name = data.get('project_name')
-        points = data.get('points')  # List of (x,y) tuples
-        
+        project_name = data['project_name']
+        points = data['points']
+
         if not project_name or not points:
             return jsonify({'error': 'Invalid request data'}), 400
 
-        analysis_point = data.get('analysis_point', [0, 0]) 
-        converter = ImageConverter()
-        try:
-            # Process ROI and highlight points
-            image_path = converter.roi_definer(points, project_name)
-            highlighted_path = converter.highlight_point_if_inside_polygon(
-                image_path, points, analysis_point, project_name
-            )
-            return jsonify({
-                'image_path': highlighted_path,
-                'message': 'ROI processing complete'
-            }), 200
-        except Exception as e:
-            return jsonify({'error': f"Image processing error: {str(e)}"}), 500
+        image_path = create_roi_image(points, project_name)
+        return jsonify({'image_path': image_path})
     except Exception as e:
-        jsonify({'error': f"Algorithm error: {str(e)}"}), 500
+        return jsonify({'error': str(e)}), 500
 
 # Add these new endpoints to your existing app.py
 

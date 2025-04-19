@@ -39,13 +39,24 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
     // Draw current selection
     if (points.length > 0) {
       ctx.strokeStyle = '#0000FF'; // Blue color
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2;    
+
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
 
       for (let i = 1; i < points.length; i++) {
         ctx.lineTo(points[i].x, points[i].y);
       }
+
+        // Connect last point to the first one if at least 3 points
+        if(points.length >= 3){
+            ctx.lineTo(points[0].x, points[0].y)
+            ctx.closePath();
+        }
+        // Fill the shape
+        ctx.fillStyle = 'rgba(0, 0, 255, 0.2)'; // Transparent blue
+        ctx.fill();
+        
       ctx.stroke();
         for (let i = 0; i < points.length; i++) {
             ctx.fillStyle = '#0000FF'; // Blue color
@@ -57,7 +68,6 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
   }, [points]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (points.length >= 4) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -70,6 +80,7 @@ const ImageSelector = ({ imageUrl, onSelectionComplete, projectId }: ImageSelect
     const margin = 5;
     if (x >= -margin && x <= canvas.width + margin && y >= -margin && y <= canvas.height + margin) {
       setPoints([...points, { x, y }]);
+
 
     }
   };
