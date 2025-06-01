@@ -54,7 +54,7 @@ DRIVE_SETTINGS = {
 }
 GEMINI_MODEL = "gemini-2.0-flash"
 
-API_KEY = "AIzaSyDHue-USShZ-R-45asfNitt3D6569RayWQ"
+API_KEY = ""
 
 PROMPT = '''
 The following image is processed satellite image 
