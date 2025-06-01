@@ -3,3 +3,4 @@
 /token.py
 /venv
 __pycache__
+*json
